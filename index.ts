@@ -11,6 +11,6 @@ new RecapBuilder(new MomentDateAgent(), new OpenWeatherMapAgent())
   .printCurrentWeather("Lyon", "fr")
   .then(builder => {
     const recap = builder.build();
-
+    console.log(recap);
     say.speak(recap, "Victoria", 1.3);
   });

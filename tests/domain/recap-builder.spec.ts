@@ -23,13 +23,16 @@ describe("RecapBuilder", () => {
 
   it("can set the current weather", () => {
     const mockWeatherAgent: WeatherAgent = {
-      getCurrentWeather: (cityName, countryCode) => Promise.resolve("cloudy")
+      getCurrentWeather: (cityName, countryCode) =>
+        Promise.resolve({ description: "cloudy", temperature: 20 })
     };
 
     new RecapBuilder(null, mockWeatherAgent)
       .printCurrentWeather("Lyon", "fr")
       .then(builder =>
-        expect(builder.build()).toBe("The weather in Lyon is currently cloudy")
+        expect(builder.build()).toBe(
+          "The weather in Lyon is currently cloudy with a temperature of 20 degrees."
+        )
       );
   });
 });

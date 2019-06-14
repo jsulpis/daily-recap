@@ -32,7 +32,9 @@ export default class RecapBuilder {
     );
 
     this.recap = this.recap.concat(
-      ` The weather in ${cityName} is currently ${currentWeather}`
+      ` The weather in ${cityName} is currently ${
+        currentWeather.description
+      } with a temperature of ${currentWeather.temperature} degrees.`
     );
     return this;
   }
