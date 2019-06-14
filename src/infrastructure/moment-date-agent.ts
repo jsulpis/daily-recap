@@ -1,8 +1,8 @@
-import DateAgent from "../domain/date-agent";
+import DateAgent from "../domain/adapters/date-agent";
 const moment = require("moment");
 
 export default class MomentDateAgent implements DateAgent {
-  getCurrentDateInSpokenLanguage(): string {
+  getCurrentDate(): string {
     moment.locale("en-US");
     const dateWithTime = moment(Date.now()).format("LLLL");
     // the format of dateWithTime is "dddd D MMMM YYYY HH:mm"

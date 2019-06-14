@@ -1,12 +1,16 @@
 import RecapBuilder from "./src/domain/recap-builder";
 import MomentDateAgent from "./src/infrastructure/moment-date-agent";
+import OpenWeatherMapAgent from "./src/infrastructure/open-weather-map-agent";
 
 require("dotenv").config();
 const say = require("say");
 
-const dailyRecap = new RecapBuilder(new MomentDateAgent())
+new RecapBuilder(new MomentDateAgent(), new OpenWeatherMapAgent())
   .setName("Julien")
   .printCurrentDate()
-  .build();
+  .printCurrentWeather("Lyon", "fr")
+  .then(builder => {
+    const recap = builder.build();
 
-say.speak(dailyRecap, 'Victoria', 1.3);
+    say.speak(recap, "Victoria", 1.3);
+  });
