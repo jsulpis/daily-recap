@@ -1,4 +1,4 @@
-import RecapBuilder from "../../src/domain/recap-builder";
+import RecapBuilder from "../../src/domain/use-case/recap-builder";
 import WeatherAgent from "../../src/domain/adapters/weather-agent";
 import CalendarAgent from "../../src/domain/adapters/calendar-agent";
 
@@ -11,20 +11,18 @@ describe("RecapBuilder", () => {
   });
 
   it("can set the date", async () => {
-    const mockDateAgent = {
-      getCurrentDate: () => "Sunday, June 2",
-      getCurrentTime: () => "2:30 pm"
-    };
+    const DATE_TEST = new Date("2019-06-02T14:30");
+    Date.now = jest.fn(() => DATE_TEST.getTime());
 
     const recap = await new RecapBuilder()
-      .printCurrentDate(mockDateAgent)
+      .printCurrentDate()
       .build();
     expect(recap).toBe("It's 2:30 pm, Sunday, June 2.");
   });
 
   it("can set the current weather", async () => {
     const mockWeatherAgent: WeatherAgent = {
-      getCurrentWeather: (cityName, countryCode) =>
+      getCurrentWeather: () =>
         Promise.resolve({ description: "cloudy", temperature: 20 })
     };
 
@@ -71,6 +69,8 @@ describe("RecapBuilder", () => {
     const recap = await new RecapBuilder()
       .printEventsOfTheDay(mockCalendarAgent)
       .build();
-    expect(recap).toBe("You have 2 events today: Lunch with Bob at 12:30 pm and Cello lesson at 6:30 pm.");
+    expect(recap).toBe(
+      "You have 2 events today: Lunch with Bob at 12:30 pm and Cello lesson at 6:30 pm."
+    );
   });
 });

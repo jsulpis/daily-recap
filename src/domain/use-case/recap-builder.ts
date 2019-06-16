@@ -1,25 +1,30 @@
-import DateAgent from "./adapters/date-agent";
-import WeatherAgent from "./adapters/weather-agent";
-import CalendarAgent from "./adapters/calendar-agent";
-const moment = require("moment");
+import DateTimeFormatter from "./date-time-formatter";
+import WeatherAgent from "../adapters/weather-agent";
+import CalendarAgent from "../adapters/calendar-agent";
 
 export default class RecapBuilder {
   private recap = "";
 
-  private dateAgent: DateAgent;
+  private dateTimeFormatter: DateTimeFormatter;
   private weatherAgent: WeatherAgent;
   private calendarAgent: CalendarAgent;
 
   private cityName: string;
   private countryCode: string;
 
+  constructor() {
+    this.dateTimeFormatter = new DateTimeFormatter();
+  }
+
   setName(name: string): RecapBuilder {
     this.recap = this.recap.concat(`Hello ${name}.`);
     return this;
   }
 
-  printCurrentDate(dateAgent: DateAgent): RecapBuilder {
-    this.dateAgent = dateAgent;
+  printCurrentDate(): RecapBuilder {
+    const date = this.dateTimeFormatter.formatDate(new Date(Date.now()));
+    const time = this.dateTimeFormatter.formatTime(new Date(Date.now()));
+    this.recap = this.recap.concat(` It's ${time}, ${date}.`);
     return this;
   }
 
@@ -40,9 +45,6 @@ export default class RecapBuilder {
   }
 
   async build(): Promise<string> {
-    if (!!this.dateAgent) {
-      this.buildDate();
-    }
     if (!!this.weatherAgent) {
       await this.buildWeather();
     }
@@ -50,12 +52,6 @@ export default class RecapBuilder {
       await this.buildEvents();
     }
     return this.recap.trim();
-  }
-
-  private buildDate() {
-    const date = this.dateAgent.getCurrentDate();
-    const time = this.dateAgent.getCurrentTime();
-    this.recap = this.recap.concat(` It's ${time}, ${date}.`);
   }
 
   private async buildWeather() {
@@ -77,12 +73,9 @@ export default class RecapBuilder {
       ` You have ${events.length} event${multipleEvents ? "s" : ""} today: `
     );
     events.forEach(event => {
-      const time = moment(event.time)
-        .format("hh:mm A")
-        .toLowerCase()
-        .replace(/^0/, "");
+      const time = this.dateTimeFormatter.formatTime(event.time);
       this.recap = this.recap.concat(`${event.title} at ${time} and `);
     });
-    this.recap = this.recap.replace(/ and $/, '.');
+    this.recap = this.recap.replace(/ and $/, ".");
   }
 }

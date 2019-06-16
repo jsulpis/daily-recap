@@ -1,9 +1,8 @@
-import CalendarAgent from "../../src/domain/adapters/calendar-agent";
+import CalendarEvent from "../domain/model/calendar-event";
+import CalendarAgent from "../domain/adapters/calendar-agent";
 
 export default class GoogleCalendarAgent implements CalendarAgent {
-  getEventsOfTheDay(): Promise<
-    import("../../src/domain/model/event").default[]
-  > {
+  getEventsOfTheDay(): Promise<CalendarEvent[]> {
     return Promise.resolve([
       {
         title: "Lunch with Bob",

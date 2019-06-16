@@ -1,11 +1,11 @@
 import WeatherAgent from "../domain/adapters/weather-agent";
 import axios from "axios";
-import Weather from "../domain/model/weather";
+import WeatherData from "../domain/model/weather-data";
 
 export default class OpenWeatherMapAgent implements WeatherAgent {
   static readonly API_URL = "https://api.openweathermap.org/data/2.5/weather";
 
-  getCurrentWeather(cityName: string, countryCode: string): Promise<Weather> {
+  getCurrentWeather(cityName: string, countryCode: string): Promise<WeatherData> {
     return axios
       .get(this.constructQueryUrl(cityName, countryCode))
       .then(response => this.createWeatherModel(response.data));
@@ -17,8 +17,8 @@ export default class OpenWeatherMapAgent implements WeatherAgent {
     }`;
   }
 
-  private createWeatherModel(data): Weather {
-    return new Weather(
+  private createWeatherModel(data): WeatherData {
+    return new WeatherData(
       data.weather[0].description,
       Math.round(this.degreesKelvinToCelcius(data.main.temp))
     );

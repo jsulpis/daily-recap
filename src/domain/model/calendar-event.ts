@@ -1,4 +1,4 @@
 export default class CalendarEvent {
-    title: string;
-    time: Date;
+  title: string;
+  time: Date;
 }

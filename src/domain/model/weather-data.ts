@@ -1,4 +1,4 @@
-export default class Weather {
+export default class WeatherData {
   description: string;
   temperature: number;
 
