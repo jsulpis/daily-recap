@@ -17,8 +17,9 @@ export default class RecapBuilder {
   }
 
   printCurrentDate(): RecapBuilder {
-    const today = this.dateAgent.getCurrentDate();
-    this.recap = this.recap.concat(` Today is ${today}.`);
+    const date = this.dateAgent.getCurrentDate();
+    const time = this.dateAgent.getCurrentTime();
+    this.recap = this.recap.concat(` It's ${time}, ${date}.`);
     return this;
   }
 

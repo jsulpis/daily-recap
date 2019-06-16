@@ -13,12 +13,13 @@ describe("RecapBuilder", () => {
 
   it("can set the date", () => {
     const mockDateAgent = {
-      getCurrentDate: () => "Sunday, June 2, 2019"
+      getCurrentDate: () => "Sunday, June 2",
+      getCurrentTime: () => "2:30 pm"
     };
 
     expect(
       new RecapBuilder(mockDateAgent, null).printCurrentDate().build()
-    ).toBe("Today is Sunday, June 2, 2019.");
+    ).toBe("It's 2:30 pm, Sunday, June 2.");
   });
 
   it("can set the current weather", () => {
