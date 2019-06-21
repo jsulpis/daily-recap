@@ -7,3 +7,6 @@ coverage
 
 # private environment variables
 .env
+
+# credentials and tokens
+static

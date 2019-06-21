@@ -5,7 +5,7 @@ describe("OpenWeatherMapAgent", () => {
   const mockedAxiosCall = jest.spyOn(axios, "get");
 
   beforeEach(() => {
-    process.env.API_KEY = "hello";
+    process.env.OPEN_WEATHER_API_KEY = "hello";
   });
 
   it("should return the current weather in the specified city", async () => {

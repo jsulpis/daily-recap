@@ -13,7 +13,7 @@ export default class OpenWeatherMapAgent implements WeatherAgent {
 
   private constructQueryUrl(cityName: string, countryCode: string): string {
     return `${OpenWeatherMapAgent.API_URL}?q=${cityName},${countryCode}&appId=${
-      process.env.API_KEY
+      process.env.OPEN_WEATHER_API_KEY
     }`;
   }
 

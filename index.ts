@@ -6,15 +6,15 @@ require("dotenv").config();
 const say = require("say");
 
 getRecap().then(recap => {
-  console.log(recap);
+  console.log("recap:", recap);
   say.speak(recap, "Victoria", 1.3);
 });
 
 async function getRecap() {
-  return await new RecapBuilder()
+  return await new GoogleCalendarAgent().getEventsOfTheDay();/*new RecapBuilder()
     .setName("Julien")
     .printCurrentDate()
     .printCurrentWeather("Lyon", "fr", new OpenWeatherMapAgent())
     .printEventsOfTheDay(new GoogleCalendarAgent())
-    .build();
+    .build();*/
 }
