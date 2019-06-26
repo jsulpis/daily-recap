@@ -16,16 +16,16 @@ describe("GoogleCalendarAgent", () => {
   const MOCK_RAW_EVENTS = [
     {
       summary: "firstEvent",
-      start: { dateTime: new Date("2019-06-26") }
+      start: { dateTime: new Date("2019-06-26T10:30:00") }
     },
     {
       summary: "secondEvent",
-      start: { dateTime: new Date("2019-06-26") }
+      start: { dateTime: new Date("2019-06-26T10:30:00") }
     }
   ];
   const MOCK_CALENDAR_EVENTS = [
-    new CalendarEvent("firstEvent", new Date("2019-06-26")),
-    new CalendarEvent("secondEvent", new Date("2019-06-26"))
+    new CalendarEvent("firstEvent", new Date("2019-06-26T10:30:00")),
+    new CalendarEvent("secondEvent", new Date("2019-06-26T10:30:00"))
   ];
   const MOCK_AUTH = {
     setCredentials() {},
@@ -123,6 +123,38 @@ describe("GoogleCalendarAgent", () => {
         expect(mockedFsCall).toHaveBeenCalledWith(TOKEN_PATH);
         done();
       });
+  });
+
+  it("should return an event marked 'allDay' for events with date instead of dateTime", async () => {
+    mockedFsCall.mockImplementation(file => {
+      let content = "";
+      if (file === CREDENTIALS_PATH) {
+        content = require("./mock-credentials.json");
+      } else if (file === TOKEN_PATH) {
+        content = require("./mock-token.json");
+      }
+      return Promise.resolve(JSON.stringify(content));
+    });
+
+    calendarAgent.getRawEvents = jest
+      .fn(() =>
+        Promise.resolve([
+          {
+            summary: "firstEvent",
+            start: { date: new Date("2019-06-26") }
+          }
+        ])
+      )
+      .bind(calendarAgent);
+
+    const events = await calendarAgent.getEventsOfTheDay();
+
+    expect(events).toEqual([
+      new CalendarEvent("firstEvent", new Date("2019-06-26"), true)
+    ]);
+    expect(mockedFsCall).toHaveBeenCalledTimes(2);
+    expect(mockedFsCall).toHaveBeenCalledWith(CREDENTIALS_PATH);
+    expect(mockedFsCall).toHaveBeenCalledWith(TOKEN_PATH);
   });
 
   it("should find the start of the day as a Date", () => {

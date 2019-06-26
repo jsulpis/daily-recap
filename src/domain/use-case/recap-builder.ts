@@ -73,8 +73,12 @@ export default class RecapBuilder {
       ` You have ${events.length} event${multipleEvents ? "s" : ""} today: `
     );
     events.forEach(event => {
-      const time = this.dateTimeFormatter.formatTime(event.time);
-      this.recap = this.recap.concat(`${event.title} at ${time} and `);
+      this.recap = this.recap.concat(event.title);
+      if (!event.allDay) {
+        const time = this.dateTimeFormatter.formatTime(event.time);
+        this.recap = this.recap.concat(` at ${time}`);
+      }
+      this.recap = this.recap.concat(" and ");
     });
     this.recap = this.recap.replace(/ and $/, ".");
   }

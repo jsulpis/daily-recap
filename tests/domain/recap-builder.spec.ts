@@ -73,4 +73,24 @@ describe("RecapBuilder", () => {
       "You have 2 events today: Lunch with Bob at 12:30 pm and Cello lesson at 6:30 pm."
     );
   });
+
+  it("should not print the time if the event lasts all day", async () => {
+    const mockCalendarAgent: CalendarAgent = {
+      getEventsOfTheDay: () =>
+        Promise.resolve([
+          {
+            title: "Ride in the mountain",
+            time: null,
+            allDay: true
+          }
+        ])
+    };
+
+    const recap = await new RecapBuilder()
+      .printEventsOfTheDay(mockCalendarAgent)
+      .build();
+    expect(recap).toBe(
+      "You have 1 event today: Ride in the mountain."
+    );
+  })
 });

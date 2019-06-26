@@ -92,7 +92,7 @@ export default class GoogleCalendarAgent implements CalendarAgent {
     return this.getRawEvents(auth).then(items =>
       items.map(event => {
         const start = new Date(event.start.dateTime || event.start.date);
-        return new CalendarEvent(event.summary, start);
+        return new CalendarEvent(event.summary, start, !!event.start.date);
       })
     );
   }

@@ -11,10 +11,10 @@ getRecap().then(recap => {
 });
 
 async function getRecap() {
-  return await new GoogleCalendarAgent().getEventsOfTheDay();/*new RecapBuilder()
+  return await new RecapBuilder()
     .setName("Julien")
     .printCurrentDate()
     .printCurrentWeather("Lyon", "fr", new OpenWeatherMapAgent())
     .printEventsOfTheDay(new GoogleCalendarAgent())
-    .build();*/
+    .build();
 }
