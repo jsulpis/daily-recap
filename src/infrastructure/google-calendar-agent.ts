@@ -1,11 +1,11 @@
 import CalendarEvent from "../domain/model/calendar-event";
 import CalendarAgent from "../domain/adapters/calendar-agent";
+import { calendar_v3 } from "googleapis";
 
 const moment = require("moment");
 const fs = require("mz/fs");
 const readline = require("readline");
 const { google } = require("googleapis");
-import { calendar_v3 } from "googleapis";
 
 export default class GoogleCalendarAgent implements CalendarAgent {
   // If modifying these scopes, delete token.json.
@@ -17,11 +17,10 @@ export default class GoogleCalendarAgent implements CalendarAgent {
   private CREDENTIALS_PATH = "static/credentials.json";
 
   getEventsOfTheDay(): Promise<CalendarEvent[]> {
-    // Load client secrets from a local file.
     return fs
       .readFile(this.CREDENTIALS_PATH)
       .catch((err: string) =>
-        console.error("Error loading client secret file:", err)
+        Promise.reject(new Error("Error loading client secret file: " + err))
       )
       .then((content: string) => {
         return this.authorize(JSON.parse(content), this.listEvents.bind(this));
@@ -35,31 +34,30 @@ export default class GoogleCalendarAgent implements CalendarAgent {
    * @param {Object} credentials The authorization client credentials.
    * @param {function} callback The callback to call with the authorized client.
    */
-  private authorize(credentials, callback): Promise<CalendarEvent[]> {
-    const { client_secret, client_id, redirect_uris } = credentials.installed;
-    const oAuth2Client = new google.auth.OAuth2(
-      client_id,
-      client_secret,
-      redirect_uris[0]
-    );
+  private async authorize(
+    credentials,
+    callback: Function
+  ): Promise<CalendarEvent[]> {
+    const oAuth2Client = this.createAuthClient(credentials);
 
-    // Check if we have previously stored a token.
-    return fs
+    const token = await fs
       .readFile(this.TOKEN_PATH)
-      .catch(err => this.getAccessToken(oAuth2Client, callback))
-      .then((token: string) => {
-        oAuth2Client.setCredentials(JSON.parse(token));
-        return callback(oAuth2Client);
-      });
+      .catch(() => this.getAccessToken(oAuth2Client));
+
+    oAuth2Client.setCredentials(JSON.parse(token));
+    return callback(oAuth2Client);
+  }
+
+  createAuthClient(credentials) {
+    const { client_secret, client_id, redirect_uris } = credentials.installed;
+    return new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
   }
 
   /**
-   * Get and store new token after prompting for user authorization, and then
-   * execute the given callback with the authorized OAuth2 client.
+   * Get and store new token after prompting for user authorization
    * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
-   * @param {getEventsCallback} callback The callback for the authorized client.
    */
-  private getAccessToken(oAuth2Client, callback): Promise<CalendarEvent[]> {
+  private getAccessToken(oAuth2Client): Promise<any> {
     const authUrl = oAuth2Client.generateAuthUrl({
       access_type: "offline",
       scope: this.SCOPES
@@ -72,14 +70,16 @@ export default class GoogleCalendarAgent implements CalendarAgent {
     return rl.question("Enter the code from that page here: ", code => {
       rl.close();
       oAuth2Client.getToken(code, (err, token) => {
-        if (err) return console.error("Error retrieving access token", err);
-        oAuth2Client.setCredentials(token);
+        if (err)
+          return Promise.reject(
+            new Error("Error retrieving access token: " + err)
+          );
         // Store the token to disk for later program executions
         fs.writeFile(this.TOKEN_PATH, JSON.stringify(token), err => {
           if (err) return console.error(err);
           console.log("Token stored to", this.TOKEN_PATH);
         });
-        return callback(oAuth2Client);
+        return Promise.resolve(token);
       });
     });
   }
@@ -89,18 +89,12 @@ export default class GoogleCalendarAgent implements CalendarAgent {
    * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
    */
   private listEvents(auth): Promise<CalendarEvent[]> {
-    return this.getRawEvents(auth)
-      .then(items =>
-        items.map(event => {
-          const start = new Date(event.start.dateTime || event.start.date);
-          console.log(`${start} - ${event.summary}`);
-          return new CalendarEvent(event.summary, start);
-        })
-      )
-      .catch(err => {
-        console.error(err);
-        return [];
-      });
+    return this.getRawEvents(auth).then(items =>
+      items.map(event => {
+        const start = new Date(event.start.dateTime || event.start.date);
+        return new CalendarEvent(event.summary, start);
+      })
+    );
   }
 
   getRawEvents(auth): Promise<calendar_v3.Schema$Event[]> {
