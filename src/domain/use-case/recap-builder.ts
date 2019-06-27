@@ -68,6 +68,12 @@ export default class RecapBuilder {
 
   private async buildEvents() {
     const events = await this.calendarAgent.getEventsOfTheDay();
+
+    if (events.length === 0) {
+      this.recap = this.recap.concat(" You don't have any event today.");
+      return;
+    }
+
     const multipleEvents = events.length > 1;
     this.recap = this.recap.concat(
       ` You have ${events.length} event${multipleEvents ? "s" : ""} today: `

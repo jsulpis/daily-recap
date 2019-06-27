@@ -14,9 +14,7 @@ describe("RecapBuilder", () => {
     const DATE_TEST = new Date("2019-06-02T14:30");
     Date.now = jest.fn(() => DATE_TEST.getTime());
 
-    const recap = await new RecapBuilder()
-      .printCurrentDate()
-      .build();
+    const recap = await new RecapBuilder().printCurrentDate().build();
     expect(recap).toBe("It's 2:30 pm, Sunday, June 2.");
   });
 
@@ -89,8 +87,17 @@ describe("RecapBuilder", () => {
     const recap = await new RecapBuilder()
       .printEventsOfTheDay(mockCalendarAgent)
       .build();
-    expect(recap).toBe(
-      "You have 1 event today: Ride in the mountain."
-    );
-  })
+    expect(recap).toBe("You have 1 event today: Ride in the mountain.");
+  });
+
+  it("should print a custom message if there is no event", async () => {
+    const mockCalendarAgent: CalendarAgent = {
+      getEventsOfTheDay: () => Promise.resolve([])
+    };
+
+    const recap = await new RecapBuilder()
+      .printEventsOfTheDay(mockCalendarAgent)
+      .build();
+    expect(recap).toBe("You don't have any event today.");
+  });
 });
