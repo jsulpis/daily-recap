@@ -7,7 +7,7 @@ export default class RecapBuilder {
 
   private dateTimeFormatter: DateTimeFormatter;
   private weatherAgent: WeatherAgent;
-  private calendarAgent: CalendarAgent;
+  private calendarAgents: CalendarAgent[] = [];
 
   private cityName: string;
   private countryCode: string;
@@ -40,7 +40,7 @@ export default class RecapBuilder {
   }
 
   printEventsOfTheDay(calendarAgent: CalendarAgent): RecapBuilder {
-    this.calendarAgent = calendarAgent;
+    this.calendarAgents.push(calendarAgent);
     return this;
   }
 
@@ -48,13 +48,14 @@ export default class RecapBuilder {
     if (!!this.weatherAgent) {
       await this.buildWeather();
     }
-    if (!!this.calendarAgent) {
-      await this.buildEvents();
+    for (const agent of this.calendarAgents) {
+      await this.buildEvents(agent);
     }
+
     return this.recap.trim();
   }
 
-  private async buildWeather() {
+  private async buildWeather(): Promise<void> {
     const currentWeather = await this.weatherAgent.getCurrentWeather(
       this.cityName,
       this.countryCode
@@ -66,12 +67,20 @@ export default class RecapBuilder {
     );
   }
 
-  private async buildEvents() {
-    const events = await this.calendarAgent.getEventsOfTheDay();
+  private async buildEvents(calendarAgent: CalendarAgent): Promise<void> {
+    let events;
+    try {
+      events = await calendarAgent.getEventsOfTheDay();
+    } catch (err) {
+      return console.error(err);
+    }
 
     if (events.length === 0) {
       this.recap = this.recap.concat(
-        ` You don't have any event today on your ${this.calendarAgent.getCalendarName()} agenda.`
+        ` You don't have any event on your ${calendarAgent.getCalendarName()} agenda today.`.replace(
+          /  /,
+          " "
+        )
       );
       return;
     }
@@ -80,7 +89,10 @@ export default class RecapBuilder {
     this.recap = this.recap.concat(
       ` You have ${events.length} event${
         multipleEvents ? "s" : ""
-      } today on your ${this.calendarAgent.getCalendarName()} agenda: `
+      } on your ${calendarAgent.getCalendarName()} agenda today: `.replace(
+        /  /,
+        " "
+      )
     );
     events.forEach(event => {
       this.recap = this.recap.concat(event.title);

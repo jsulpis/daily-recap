@@ -32,7 +32,6 @@ describe("RecapBuilder", () => {
     );
   });
 
-
   it("should say the name of the agenda if one is provided", async () => {
     const mockCalendarAgent: CalendarAgent = {
       getEventsOfTheDay: () => Promise.resolve([]),
@@ -43,7 +42,37 @@ describe("RecapBuilder", () => {
       .printEventsOfTheDay(mockCalendarAgent)
       .build();
     expect(recap).toBe(
-      "You don't have any event today on your personnal agenda."
+      "You don't have any event on your personnal agenda today."
+    );
+  });
+
+  it("should print a consistant sentence if no agenda name is provided", async () => {
+    let mockCalendarAgent: CalendarAgent = {
+      getEventsOfTheDay: () => Promise.resolve([]),
+      getCalendarName: () => ""
+    };
+
+    let recap = await new RecapBuilder()
+      .printEventsOfTheDay(mockCalendarAgent)
+      .build();
+    expect(recap).toBe("You don't have any event on your agenda today.");
+
+    mockCalendarAgent = {
+      getCalendarName: () => "",
+      getEventsOfTheDay: () =>
+        Promise.resolve([
+          {
+            title: "Lunch with Bob",
+            time: new Date("2019-06-16T12:30")
+          }
+        ])
+    };
+
+    recap = await new RecapBuilder()
+      .printEventsOfTheDay(mockCalendarAgent)
+      .build();
+    expect(recap).toBe(
+      "You have 1 event on your agenda today: Lunch with Bob at 12:30 pm."
     );
   });
 
@@ -62,7 +91,9 @@ describe("RecapBuilder", () => {
     const recap = await new RecapBuilder()
       .printEventsOfTheDay(mockCalendarAgent)
       .build();
-    expect(recap).toBe("You have 1 event today on your personnal agenda: Lunch with Bob at 12:30 pm.");
+    expect(recap).toBe(
+      "You have 1 event on your personnal agenda today: Lunch with Bob at 12:30 pm."
+    );
   });
 
   it("should print several events on the calendar today", async () => {
@@ -85,7 +116,7 @@ describe("RecapBuilder", () => {
       .printEventsOfTheDay(mockCalendarAgent)
       .build();
     expect(recap).toBe(
-      "You have 2 events today on your personnal agenda: Lunch with Bob at 12:30 pm and Cello lesson at 6:30 pm."
+      "You have 2 events on your personnal agenda today: Lunch with Bob at 12:30 pm and Cello lesson at 6:30 pm."
     );
   });
 
@@ -105,7 +136,9 @@ describe("RecapBuilder", () => {
     const recap = await new RecapBuilder()
       .printEventsOfTheDay(mockCalendarAgent)
       .build();
-    expect(recap).toBe("You have 1 event today on your personnal agenda: Ride in the mountain.");
+    expect(recap).toBe(
+      "You have 1 event on your personnal agenda today: Ride in the mountain."
+    );
   });
 
   it("should print a custom message if there is no event", async () => {
@@ -117,6 +150,26 @@ describe("RecapBuilder", () => {
     const recap = await new RecapBuilder()
       .printEventsOfTheDay(mockCalendarAgent)
       .build();
-    expect(recap).toBe("You don't have any event today on your personnal agenda.");
+    expect(recap).toBe(
+      "You don't have any event on your personnal agenda today."
+    );
+  });
+
+  it("should catch any error returned by the calendarAgent", async () => {
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+
+    const ERROR = new Error("Error in the calendar Agent");
+    const mockCalendarAgent: CalendarAgent = {
+      getEventsOfTheDay: () => Promise.reject(ERROR),
+      getCalendarName: () => ""
+    };
+
+    const recap = await new RecapBuilder()
+      .printEventsOfTheDay(mockCalendarAgent)
+      .build();
+
+    expect(consoleSpy).toHaveBeenCalledTimes(1);
+    expect(consoleSpy).toBeCalledWith(ERROR);
+    expect(recap).toBe("");
   });
 });

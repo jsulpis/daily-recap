@@ -13,13 +13,16 @@ export default class GoogleCalendarAgent implements CalendarAgent {
   // The file token.json stores the user's access and refresh tokens, and is
   // created automatically when the authorization flow completes for the first
   // time.
-  private TOKEN_PATH = "static/token.json";
   private CREDENTIALS_PATH = "static/credentials.json";
 
   constructor(private calendarName: string) {}
 
   getCalendarName() {
     return this.calendarName;
+  }
+
+  get tokenPath(): string {
+    return `static/${this.calendarName}-token.json`.replace(/\/-/, "/");
   }
 
   getEventsOfTheDay(): Promise<CalendarEvent[]> {
@@ -46,9 +49,12 @@ export default class GoogleCalendarAgent implements CalendarAgent {
   ): Promise<CalendarEvent[]> {
     const oAuth2Client = this.createAuthClient(credentials);
 
-    const token = await fs
-      .readFile(this.TOKEN_PATH)
-      .catch(() => this.getAccessToken(oAuth2Client));
+    let token;
+    try {
+      token = await fs.readFile(this.tokenPath);
+    } catch {
+      token = await this.getAccessToken(oAuth2Client);
+    }
 
     oAuth2Client.setCredentials(JSON.parse(token));
     return callback(oAuth2Client);
@@ -63,35 +69,46 @@ export default class GoogleCalendarAgent implements CalendarAgent {
    * Get and store new token after prompting for user authorization
    * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
    */
-  private getAccessToken(oAuth2Client): Promise<any> {
+  private async getAccessToken(oAuth2Client): Promise<any> {
     const authUrl = oAuth2Client.generateAuthUrl({
       access_type: "offline",
       scope: this.SCOPES
     });
     console.log("Authorize this app by visiting this url:", authUrl);
+
+    const code = await this.askCode();
+    return this.fetchToken(oAuth2Client, code);
+  }
+
+  askCode(): Promise<string> {
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout
     });
-    return rl.question("Enter the code from that page here: ", code => {
-      rl.close();
-      oAuth2Client.getToken(code, (err, token) => {
-        if (err)
-          return Promise.reject(
-            new Error("Error retrieving access token: " + err)
-          );
+    return new Promise(resolve => {
+      rl.question("Enter the code from that page here: ", code => {
+        rl.close();
+        resolve(code);
+      });
+    });
+  }
+
+  fetchToken(oAuth2Client, code): Promise<any> {
+    return new Promise((resolve, reject) => {
+      oAuth2Client.getToken(code, (e, token) => {
+        if (e) return reject(new Error(e));
         // Store the token to disk for later program executions
-        fs.writeFile(this.TOKEN_PATH, JSON.stringify(token), err => {
-          if (err) return console.error(err);
-          console.log("Token stored to", this.TOKEN_PATH);
+        fs.writeFile(this.tokenPath, JSON.stringify(token), err => {
+          if (err) return reject(new Error(err));
+          console.log("Token stored to", this.tokenPath);
         });
-        return Promise.resolve(token);
+        resolve(token);
       });
     });
   }
 
   /**
-   * Lists the next 10 events on the user's primary calendar.
+   * Lists the events of a day on the user's calendar.
    * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
    */
   private listEvents(auth): Promise<CalendarEvent[]> {

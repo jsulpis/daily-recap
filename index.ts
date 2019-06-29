@@ -16,5 +16,6 @@ async function getRecap() {
     .printCurrentDate()
     .printCurrentWeather("Lyon", "fr", new OpenWeatherMapAgent())
     .printEventsOfTheDay(new GoogleCalendarAgent("personnal"))
+    .printEventsOfTheDay(new GoogleCalendarAgent("Zenika"))
     .build();
 }

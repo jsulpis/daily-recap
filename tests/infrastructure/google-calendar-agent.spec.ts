@@ -10,7 +10,7 @@ describe("GoogleCalendarAgent", () => {
   const mockedReadlineCall = jest.spyOn(readline, "createInterface");
   const mockedFsCall = jest.spyOn(fs, "readFile");
 
-  const TOKEN_PATH = "static/token.json";
+  const TOKEN_PATH = "static/mock-token.json";
   const CREDENTIALS_PATH = "static/credentials.json";
 
   const MOCK_RAW_EVENTS = [
@@ -27,25 +27,14 @@ describe("GoogleCalendarAgent", () => {
     new CalendarEvent("firstEvent", new Date("2019-06-26T10:30:00")),
     new CalendarEvent("secondEvent", new Date("2019-06-26T10:30:00"))
   ];
-  const MOCK_AUTH = {
-    setCredentials() {},
-    generateAuthUrl() {},
-    getToken() {
-      return Promise.resolve(JSON.stringify(require("./mock-token.json")));
-    }
-  };
 
   let calendarAgent: GoogleCalendarAgent;
 
   beforeEach(() => {
-    calendarAgent = new GoogleCalendarAgent();
+    calendarAgent = new GoogleCalendarAgent("mock");
 
     calendarAgent.getRawEvents = jest
       .fn(() => Promise.resolve(MOCK_RAW_EVENTS))
-      .bind(calendarAgent);
-
-    calendarAgent.createAuthClient = jest
-      .fn(() => MOCK_AUTH)
       .bind(calendarAgent);
 
     // reset calls history
@@ -60,9 +49,9 @@ describe("GoogleCalendarAgent", () => {
     mockedFsCall.mockImplementation(file => {
       let content = "";
       if (file === CREDENTIALS_PATH) {
-        content = require("./mock-credentials.json");
+        content = require("./mocks/credentials.json");
       } else if (file === TOKEN_PATH) {
-        content = require("./mock-token.json");
+        content = require("./mocks/mock-token.json");
       }
       return Promise.resolve(JSON.stringify(content));
     });
@@ -101,23 +90,26 @@ describe("GoogleCalendarAgent", () => {
     mockedFsCall.mockImplementation(file => {
       if (file === CREDENTIALS_PATH) {
         return Promise.resolve(
-          JSON.stringify(require("./mock-credentials.json"))
+          JSON.stringify(require("./mocks/credentials.json"))
         );
       } else if (file === TOKEN_PATH) {
         return Promise.reject();
       }
     });
-    const mockReadline = {
-      question: jest.fn(MOCK_AUTH.getToken)
-    };
-    mockedReadlineCall.mockReturnValue(mockReadline);
+
+    calendarAgent.askCode = jest
+      .fn(() => Promise.resolve("code"))
+      .bind(calendarAgent);
+
+    calendarAgent.fetchToken = jest
+      .fn(() => Promise.resolve(JSON.stringify(require("./mocks/token.json"))))
+      .bind(calendarAgent);
 
     calendarAgent
       .getEventsOfTheDay()
       .catch(err => fail("Promise should not fail: " + err))
       .then(events => {
         expect(events).toEqual(MOCK_CALENDAR_EVENTS);
-        expect(mockReadline.question).toHaveBeenCalledTimes(1);
         expect(mockedFsCall).toHaveBeenCalledTimes(2);
         expect(mockedFsCall).toHaveBeenCalledWith(CREDENTIALS_PATH);
         expect(mockedFsCall).toHaveBeenCalledWith(TOKEN_PATH);
@@ -129,9 +121,9 @@ describe("GoogleCalendarAgent", () => {
     mockedFsCall.mockImplementation(file => {
       let content = "";
       if (file === CREDENTIALS_PATH) {
-        content = require("./mock-credentials.json");
+        content = require("./mocks/credentials.json");
       } else if (file === TOKEN_PATH) {
-        content = require("./mock-token.json");
+        content = require("./mocks/mock-token.json");
       }
       return Promise.resolve(JSON.stringify(content));
     });
@@ -160,12 +152,23 @@ describe("GoogleCalendarAgent", () => {
   it("should find the start of the day as a Date", () => {
     const day = new Date("2019-06-22T18:45:00+00:00");
     const startOfDay = new Date("2019-06-22T00:00:00+00:00");
-    expect(new GoogleCalendarAgent().startOfDay(day)).toEqual(startOfDay);
+    expect(new GoogleCalendarAgent("").startOfDay(day)).toEqual(startOfDay);
   });
 
   it("should find the end of the day as a Date", () => {
     const day = new Date("2019-06-22T18:45:00+00:00");
     const endOfNextDay = new Date("2019-06-22T23:59:59.999+00:00");
-    expect(new GoogleCalendarAgent().endOfDay(day)).toEqual(endOfNextDay);
+    expect(new GoogleCalendarAgent("").endOfDay(day)).toEqual(endOfNextDay);
+  });
+
+  it("should give the token path based on the calendar name", () => {
+    expect(new GoogleCalendarAgent("Hello").tokenPath).toBe(
+      "static/Hello-token.json"
+    );
+    expect(new GoogleCalendarAgent("").tokenPath).toBe("static/token.json");
+  });
+
+  it("should provide the calendar name", () => {
+    expect(new GoogleCalendarAgent("Name").getCalendarName()).toBe("Name");
   });
 });
