@@ -16,6 +16,12 @@ export default class GoogleCalendarAgent implements CalendarAgent {
   private TOKEN_PATH = "static/token.json";
   private CREDENTIALS_PATH = "static/credentials.json";
 
+  constructor(private calendarName: string) {}
+
+  getCalendarName() {
+    return this.calendarName;
+  }
+
   getEventsOfTheDay(): Promise<CalendarEvent[]> {
     return fs
       .readFile(this.CREDENTIALS_PATH)
