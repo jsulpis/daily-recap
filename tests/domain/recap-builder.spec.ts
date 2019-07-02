@@ -1,6 +1,7 @@
 import RecapBuilder from "../../src/domain/use-case/recap-builder";
 import WeatherAgent from "../../src/domain/interfaces/weather-agent";
 import CalendarAgent from "../../src/domain/interfaces/calendar-agent";
+import TodoProvider from "../../src/domain/interfaces/todo-provider";
 
 describe("RecapBuilder", () => {
   it("should set the name", async () => {
@@ -171,5 +172,47 @@ describe("RecapBuilder", () => {
     expect(consoleSpy).toHaveBeenCalledTimes(1);
     expect(consoleSpy).toBeCalledWith(ERROR);
     expect(recap).toBe("");
+  });
+
+  it("should list one item of a todo list", async () => {
+    const MOCK_TODO = { title: "Finish the Voice Assistant project" };
+    const mockTodoProvider: TodoProvider = {
+      getTodos: () => Promise.resolve([MOCK_TODO]),
+      getListName: () => "Weekly"
+    };
+
+    const recap = await new RecapBuilder().listTodos(mockTodoProvider).build();
+
+    expect(recap).toBe(
+      `You have 1 task on your Weekly list: ${MOCK_TODO.title}.`
+    );
+  });
+
+  it("should list multiple items of a todo list", async () => {
+    const MOCK_TODO_1 = { title: "Finish the Voice Assistant project" };
+    const MOCK_TODO_2 = { title: "Install the Voice Assistant at home" };
+    const mockTodoProvider: TodoProvider = {
+      getTodos: () => Promise.resolve([MOCK_TODO_1, MOCK_TODO_2]),
+      getListName: () => "Weekly"
+    };
+
+    const recap = await new RecapBuilder().listTodos(mockTodoProvider).build();
+
+    expect(recap).toBe(
+      `You have 2 tasks on your Weekly list: ${MOCK_TODO_1.title} and ${
+        MOCK_TODO_2.title
+      }.`
+    );
+  });
+
+  it("should have a custom message when there is no task on the todo list", async () => {
+    const mockTodoProvider: TodoProvider = {
+      getTodos: () => Promise.resolve([]),
+      getListName: () => "Weekly"
+    };
+
+    const recap = await new RecapBuilder().listTodos(mockTodoProvider).build();
+
+    expect(recap).toBe("You don't have any task on your Weekly list.");
   });
 });
