@@ -1,7 +1,7 @@
 import RecapBuilder from "./src/domain/use-case/recap-builder";
-import OpenWeatherMapAgent from "./src/infrastructure/open-weather-map-agent";
-import GoogleCalendarAgent from "./src/infrastructure/google-calendar-agent";
-import TrelloAgent from "./src/infrastructure/trello-agent";
+import OpenWeatherMapService from "./src/infrastructure/open-weather-map.service";
+import GoogleCalendarService from "./src/infrastructure/google-calendar.service";
+import TrelloService from "./src/infrastructure/trello.service";
 
 require("dotenv").config();
 const say = require("say");
@@ -15,10 +15,10 @@ async function getRecap() {
   return await new RecapBuilder()
     .sayHello("Julien")
     .sayCurrentDate()
-    .sayCurrentWeather("Lyon", "fr", new OpenWeatherMapAgent())
-    .listEventsOfTheDay(new GoogleCalendarAgent("personal"))
-    .listEventsOfTheDay(new GoogleCalendarAgent("Zenika"))
-    .listTodos(new TrelloAgent("Daily", process.env.TRELLO_DAIlY_LIST_ID))
-    .listTodos(new TrelloAgent("Weekly", process.env.TRELLO_WEEKLY_LIST_ID))
+    .sayCurrentWeather("Lyon", "fr", new OpenWeatherMapService())
+    .listEventsOfTheDay(new GoogleCalendarService("personal"))
+    .listEventsOfTheDay(new GoogleCalendarService("Zenika"))
+    .listTodos(new TrelloService("Daily", process.env.TRELLO_DAIlY_LIST_ID))
+    .listTodos(new TrelloService("Weekly", process.env.TRELLO_WEEKLY_LIST_ID))
     .build();
 }

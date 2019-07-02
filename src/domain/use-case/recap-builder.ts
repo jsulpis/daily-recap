@@ -1,15 +1,15 @@
 import DateTimeFormatter from "./date-time-formatter";
-import WeatherAgent from "../interfaces/weather-agent";
-import CalendarAgent from "../interfaces/calendar-agent";
-import TodoProvider from "../interfaces/todo-provider";
+import WeatherService from "../interfaces/weather.service";
+import CalendarService from "../interfaces/calendar.service";
+import TodoService from "../interfaces/todo.service";
 
 export default class RecapBuilder {
     private recap = "";
 
     private dateTimeFormatter: DateTimeFormatter;
-    private weatherAgent: WeatherAgent;
-    private calendarAgents: CalendarAgent[] = [];
-    private todoProviders: TodoProvider[] = [];
+    private weatherAgent: WeatherService;
+    private calendarAgents: CalendarService[] = [];
+    private todoProviders: TodoService[] = [];
 
     private cityName: string;
     private countryCode: string;
@@ -33,7 +33,7 @@ export default class RecapBuilder {
     sayCurrentWeather(
         cityName: string,
         countryCode: string,
-        weatherAgent: WeatherAgent
+        weatherAgent: WeatherService
     ): RecapBuilder {
         this.weatherAgent = weatherAgent;
         this.cityName = cityName;
@@ -41,12 +41,12 @@ export default class RecapBuilder {
         return this;
     }
 
-    listEventsOfTheDay(calendarAgent: CalendarAgent): RecapBuilder {
+    listEventsOfTheDay(calendarAgent: CalendarService): RecapBuilder {
         this.calendarAgents.push(calendarAgent);
         return this;
     }
 
-    listTodos(todoProvider: TodoProvider) {
+    listTodos(todoProvider: TodoService) {
         this.todoProviders.push(todoProvider);
         return this;
     }
@@ -77,7 +77,7 @@ export default class RecapBuilder {
         );
     }
 
-    private async buildEvents(calendarAgent: CalendarAgent): Promise<void> {
+    private async buildEvents(calendarAgent: CalendarService): Promise<void> {
         let events;
         try {
             events = await calendarAgent.getEventsOfTheDay();
@@ -115,7 +115,7 @@ export default class RecapBuilder {
         this.recap = this.recap.replace(/ and $/, ".");
     }
 
-    private async buildTodos(todoProvider: TodoProvider): Promise<void> {
+    private async buildTodos(todoProvider: TodoService): Promise<void> {
         const todos = await todoProvider.getTodos();
 
         if (todos.length === 0) {
@@ -132,10 +132,7 @@ export default class RecapBuilder {
         this.recap = this.recap.concat(
             ` You have ${todos.length} task${
                 multipleTasks ? "s" : ""
-            } on your ${todoProvider.getListName()} list: `.replace(
-                /  /,
-                " "
-            )
+            } on your ${todoProvider.getListName()} list: `.replace(/  /, " ")
         );
         todos.forEach(task => {
             this.recap = this.recap.concat(task.title);
