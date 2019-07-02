@@ -1,4 +1,4 @@
-import WeatherAgent from "../domain/adapters/weather-agent";
+import WeatherAgent from "../domain/interfaces/weather-agent";
 import axios from "axios";
 import WeatherData from "../domain/model/weather-data";
 

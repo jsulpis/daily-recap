@@ -1,5 +1,5 @@
 import CalendarEvent from "../domain/model/calendar-event";
-import CalendarAgent from "../domain/adapters/calendar-agent";
+import CalendarAgent from "../domain/interfaces/calendar-agent";
 import { calendar_v3 } from "googleapis";
 
 const moment = require("moment");

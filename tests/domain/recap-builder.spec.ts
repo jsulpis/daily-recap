@@ -1,12 +1,12 @@
 import RecapBuilder from "../../src/domain/use-case/recap-builder";
-import WeatherAgent from "../../src/domain/adapters/weather-agent";
-import CalendarAgent from "../../src/domain/adapters/calendar-agent";
+import WeatherAgent from "../../src/domain/interfaces/weather-agent";
+import CalendarAgent from "../../src/domain/interfaces/calendar-agent";
 
 describe("RecapBuilder", () => {
   it("should set the name", async () => {
-    let recap = await new RecapBuilder().setName("World").build();
+    let recap = await new RecapBuilder().sayHello("World").build();
     expect(recap).toBe("Hello World.");
-    recap = await new RecapBuilder().setName("Julien").build();
+    recap = await new RecapBuilder().sayHello("Julien").build();
     expect(recap).toBe("Hello Julien.");
   });
 
@@ -14,7 +14,7 @@ describe("RecapBuilder", () => {
     const DATE_TEST = new Date("2019-06-02T14:30");
     Date.now = jest.fn(() => DATE_TEST.getTime());
 
-    const recap = await new RecapBuilder().printCurrentDate().build();
+    const recap = await new RecapBuilder().sayCurrentDate().build();
     expect(recap).toBe("It's 2:30 pm, Sunday, June 2.");
   });
 
@@ -25,7 +25,7 @@ describe("RecapBuilder", () => {
     };
 
     const recap = await new RecapBuilder()
-      .printCurrentWeather("Lyon", "fr", mockWeatherAgent)
+      .sayCurrentWeather("Lyon", "fr", mockWeatherAgent)
       .build();
     expect(recap).toBe(
       "The weather in Lyon is currently cloudy with a temperature of 20 degrees."
@@ -39,7 +39,7 @@ describe("RecapBuilder", () => {
     };
 
     const recap = await new RecapBuilder()
-      .printEventsOfTheDay(mockCalendarAgent)
+      .listEventsOfTheDay(mockCalendarAgent)
       .build();
     expect(recap).toBe(
       "You don't have any event on your personnal agenda today."
@@ -53,7 +53,7 @@ describe("RecapBuilder", () => {
     };
 
     let recap = await new RecapBuilder()
-      .printEventsOfTheDay(mockCalendarAgent)
+      .listEventsOfTheDay(mockCalendarAgent)
       .build();
     expect(recap).toBe("You don't have any event on your agenda today.");
 
@@ -69,7 +69,7 @@ describe("RecapBuilder", () => {
     };
 
     recap = await new RecapBuilder()
-      .printEventsOfTheDay(mockCalendarAgent)
+      .listEventsOfTheDay(mockCalendarAgent)
       .build();
     expect(recap).toBe(
       "You have 1 event on your agenda today: Lunch with Bob at 12:30 pm."
@@ -89,7 +89,7 @@ describe("RecapBuilder", () => {
     };
 
     const recap = await new RecapBuilder()
-      .printEventsOfTheDay(mockCalendarAgent)
+      .listEventsOfTheDay(mockCalendarAgent)
       .build();
     expect(recap).toBe(
       "You have 1 event on your personnal agenda today: Lunch with Bob at 12:30 pm."
@@ -113,7 +113,7 @@ describe("RecapBuilder", () => {
     };
 
     const recap = await new RecapBuilder()
-      .printEventsOfTheDay(mockCalendarAgent)
+      .listEventsOfTheDay(mockCalendarAgent)
       .build();
     expect(recap).toBe(
       "You have 2 events on your personnal agenda today: Lunch with Bob at 12:30 pm and Cello lesson at 6:30 pm."
@@ -134,7 +134,7 @@ describe("RecapBuilder", () => {
     };
 
     const recap = await new RecapBuilder()
-      .printEventsOfTheDay(mockCalendarAgent)
+      .listEventsOfTheDay(mockCalendarAgent)
       .build();
     expect(recap).toBe(
       "You have 1 event on your personnal agenda today: Ride in the mountain."
@@ -148,7 +148,7 @@ describe("RecapBuilder", () => {
     };
 
     const recap = await new RecapBuilder()
-      .printEventsOfTheDay(mockCalendarAgent)
+      .listEventsOfTheDay(mockCalendarAgent)
       .build();
     expect(recap).toBe(
       "You don't have any event on your personnal agenda today."
@@ -165,7 +165,7 @@ describe("RecapBuilder", () => {
     };
 
     const recap = await new RecapBuilder()
-      .printEventsOfTheDay(mockCalendarAgent)
+      .listEventsOfTheDay(mockCalendarAgent)
       .build();
 
     expect(consoleSpy).toHaveBeenCalledTimes(1);

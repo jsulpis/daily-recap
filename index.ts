@@ -12,10 +12,10 @@ getRecap().then(recap => {
 
 async function getRecap() {
   return await new RecapBuilder()
-    .setName("Julien")
-    .printCurrentDate()
-    .printCurrentWeather("Lyon", "fr", new OpenWeatherMapAgent())
-    .printEventsOfTheDay(new GoogleCalendarAgent("personnal"))
-    .printEventsOfTheDay(new GoogleCalendarAgent("Zenika"))
+    .sayHello("Julien")
+    .sayCurrentDate()
+    .sayCurrentWeather("Lyon", "fr", new OpenWeatherMapAgent())
+    .listEventsOfTheDay(new GoogleCalendarAgent("personal"))
+    .listEventsOfTheDay(new GoogleCalendarAgent("Zenika"))
     .build();
 }

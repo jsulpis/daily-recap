@@ -1,6 +1,6 @@
 import DateTimeFormatter from "./date-time-formatter";
-import WeatherAgent from "../adapters/weather-agent";
-import CalendarAgent from "../adapters/calendar-agent";
+import WeatherAgent from "../interfaces/weather-agent";
+import CalendarAgent from "../interfaces/calendar-agent";
 
 export default class RecapBuilder {
   private recap = "";
@@ -16,19 +16,19 @@ export default class RecapBuilder {
     this.dateTimeFormatter = new DateTimeFormatter();
   }
 
-  setName(name: string): RecapBuilder {
+  sayHello(name: string): RecapBuilder {
     this.recap = this.recap.concat(`Hello ${name}.`);
     return this;
   }
 
-  printCurrentDate(): RecapBuilder {
+  sayCurrentDate(): RecapBuilder {
     const date = this.dateTimeFormatter.formatDate(new Date(Date.now()));
     const time = this.dateTimeFormatter.formatTime(new Date(Date.now()));
     this.recap = this.recap.concat(` It's ${time}, ${date}.`);
     return this;
   }
 
-  printCurrentWeather(
+  sayCurrentWeather(
     cityName: string,
     countryCode: string,
     weatherAgent: WeatherAgent
@@ -39,7 +39,7 @@ export default class RecapBuilder {
     return this;
   }
 
-  printEventsOfTheDay(calendarAgent: CalendarAgent): RecapBuilder {
+  listEventsOfTheDay(calendarAgent: CalendarAgent): RecapBuilder {
     this.calendarAgents.push(calendarAgent);
     return this;
   }
