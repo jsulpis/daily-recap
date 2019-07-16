@@ -2,12 +2,9 @@ import GoogleCalendarService from "../../src/infrastructure/google-calendar.serv
 import CalendarEvent from "../../src/domain/model/calendar-event";
 
 const fs = require("mz/fs");
-const readline = require("readline");
 
 describe("GoogleCalendarService", () => {
     const consoleSpy = jest.spyOn(console, "log").mockImplementation();
-
-    const mockedReadlineCall = jest.spyOn(readline, "createInterface");
     const mockedFsCall = jest.spyOn(fs, "readFile");
 
     const TOKEN_PATH = "static/mock-token.json";

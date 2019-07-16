@@ -3,11 +3,11 @@ import OpenWeatherMapService from "./src/infrastructure/open-weather-map.service
 import GoogleCalendarService from "./src/infrastructure/google-calendar.service";
 import TrelloService from "./src/infrastructure/trello.service";
 import SpeakerService from "./src/domain/interfaces/speaker.service";
-import SayService from "./src/infrastructure/say.service";
+import GoogleTtsService from "./src/infrastructure/google-tts.service";
 
 require("dotenv").config();
 
-const speaker: SpeakerService = new SayService();
+const speaker: SpeakerService = new GoogleTtsService();
 
 getRecap().then(recap => {
   console.log(recap);
