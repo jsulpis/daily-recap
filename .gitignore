@@ -10,3 +10,6 @@ coverage
 
 # credentials and tokens
 static
+
+# build
+dist
