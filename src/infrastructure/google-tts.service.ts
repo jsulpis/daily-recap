@@ -4,9 +4,8 @@ const fs = require("fs");
 const player = require("play-sound")();
 
 export default class GoogleTtsService implements SpeakerService {
-    readonly OUTPUT_FOLDER = "output";
-    readonly OUTPUT_FILE_NAME = "recap.mp3";
-    readonly OUTPUT_FILE_PATH = `${this.OUTPUT_FOLDER}/${this.OUTPUT_FILE_NAME}`
+    OUTPUT_FOLDER = "output";
+    OUTPUT_FILE_NAME = "recap.mp3";
 
     async say(text: string) {
         const client = this.getClient();
@@ -24,8 +23,9 @@ export default class GoogleTtsService implements SpeakerService {
         if (!fs.existsSync(this.OUTPUT_FOLDER)){
             fs.mkdirSync(this.OUTPUT_FOLDER);
         }
-        fs.writeFileSync(this.OUTPUT_FILE_PATH, response.audioContent, {encoding: "binary"});
-        player.play(this.OUTPUT_FILE_PATH);
+        const OUTPUT_FILE_PATH = `${this.OUTPUT_FOLDER}/${this.OUTPUT_FILE_NAME}`;
+        fs.writeFileSync(OUTPUT_FILE_PATH, response.audioContent, {encoding: "binary"});
+        player.play(OUTPUT_FILE_PATH);
     }
 
     getClient() {

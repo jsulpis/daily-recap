@@ -5,6 +5,8 @@ describe("GoogleTtsService", () => {
     it("should call the API and write an mp3 file", async () => {
         // Given
         const service = new GoogleTtsService();
+        service.OUTPUT_FOLDER = "testfolder";
+        service.OUTPUT_FILE_NAME = "hello.mp3";
 
         const mockSpeechSynthese = jest.fn(() =>
             Promise.resolve([{ audioContent: null }])
@@ -13,9 +15,8 @@ describe("GoogleTtsService", () => {
             .fn(() => ({ synthesizeSpeech: mockSpeechSynthese }))
             .bind(service);
 
-        const mockFsCall = jest
-            .spyOn(fs, "writeFileSync")
-            .mockImplementation();
+        const mockFsWrite = jest.spyOn(fs, "writeFileSync").mockImplementation();
+        const mockFsMkdir = jest.spyOn(fs, "mkdirSync").mockImplementation();
 
         // When
         const TEXT = "Hello";
@@ -29,6 +30,7 @@ describe("GoogleTtsService", () => {
         };
         expect(mockSpeechSynthese).toHaveBeenCalledTimes(1);
         expect(mockSpeechSynthese).toHaveBeenCalledWith(EXPECTED_REQUEST);
-        expect(mockFsCall).toHaveBeenCalledTimes(1);
+        expect(mockFsWrite).toHaveBeenCalledTimes(1);
+        expect(mockFsMkdir).toHaveBeenCalledTimes(1);
     });
 });
