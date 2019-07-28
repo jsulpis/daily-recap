@@ -7,6 +7,10 @@ export default class I18nService implements TranslatorService {
         i18n.setLocale(locale);
     }
 
+    setLocale(locale: string) {
+        i18n.setLocale(locale);
+    }
+
     getTranslation(key: string, payload?: Object): string {
         return !!payload ? i18n.__(key, payload) : i18n.__(key);
     }

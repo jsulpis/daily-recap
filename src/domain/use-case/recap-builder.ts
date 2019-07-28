@@ -2,25 +2,41 @@ import DateTimeFormatter from "./date-time-formatter";
 import WeatherService from "../interfaces/weather.service";
 import CalendarService from "../interfaces/calendar.service";
 import TodoService from "../interfaces/todo.service";
+import I18nService from "../../infrastructure/i18n.service";
+import TranslatorService from "../interfaces/translator.service";
 
 export default class RecapBuilder {
     private recap = "";
 
     private dateTimeFormatter: DateTimeFormatter;
-    private weatherAgent: WeatherService;
-    private calendarAgents: CalendarService[] = [];
+    private weatherService: WeatherService;
+    private calendarProviders: CalendarService[] = [];
     private todoProviders: TodoService[] = [];
+    translatorService: TranslatorService;
 
     private cityName: string;
     private countryCode: string;
 
     constructor() {
         this.dateTimeFormatter = new DateTimeFormatter();
+        this.translatorService = new I18nService();
+        this.translatorService.init("en", "./locales");
+    }
+
+    setLocale(locale: string) {
+        this.translatorService.setLocale(locale);
+        return this;
     }
 
     sayHello(name: string): RecapBuilder {
-        this.recap = this.recap.concat(`Hello ${name}.`);
+        this.addTranslationToRecap("hello", { name });
         return this;
+    }
+
+    addTranslationToRecap(key: string, payload?: Object): void {
+        this.recap = this.recap.concat(
+            this.translatorService.getTranslation(key, payload)
+        );
     }
 
     sayCurrentDate(): RecapBuilder {
@@ -35,14 +51,14 @@ export default class RecapBuilder {
         countryCode: string,
         weatherAgent: WeatherService
     ): RecapBuilder {
-        this.weatherAgent = weatherAgent;
+        this.weatherService = weatherAgent;
         this.cityName = cityName;
         this.countryCode = countryCode;
         return this;
     }
 
     listEventsOfTheDay(calendarAgent: CalendarService): RecapBuilder {
-        this.calendarAgents.push(calendarAgent);
+        this.calendarProviders.push(calendarAgent);
         return this;
     }
 
@@ -52,10 +68,10 @@ export default class RecapBuilder {
     }
 
     async build(): Promise<string> {
-        if (!!this.weatherAgent) {
+        if (!!this.weatherService) {
             await this.buildWeather();
         }
-        for (const agent of this.calendarAgents) {
+        for (const agent of this.calendarProviders) {
             await this.buildEvents(agent);
         }
         for (const todoProvider of this.todoProviders) {
@@ -66,7 +82,7 @@ export default class RecapBuilder {
     }
 
     private async buildWeather(): Promise<void> {
-        const currentWeather = await this.weatherAgent.getCurrentWeather(
+        const currentWeather = await this.weatherService.getCurrentWeather(
             this.cityName,
             this.countryCode
         );

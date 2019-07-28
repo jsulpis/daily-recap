@@ -25,4 +25,12 @@ describe("I18nService", () => {
         await service.init("fr", "tests/infrastructure/locales");
         expect(service.getTranslation("key")).toBe("valeur");
     })
+
+    it("should allow to change the locale", async () => {
+        await service.init("en", "tests/infrastructure/locales");
+        expect(service.getTranslation("key")).toBe("value");
+
+        service.setLocale("fr");
+        expect(service.getTranslation("key")).toBe("valeur");
+    })
 });

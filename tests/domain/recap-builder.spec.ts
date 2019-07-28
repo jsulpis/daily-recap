@@ -4,6 +4,18 @@ import CalendarService from "../../src/domain/interfaces/calendar.service";
 import TodoService from "../../src/domain/interfaces/todo.service";
 
 describe("RecapBuilder", () => {
+    it("should add a translated text to the recap", async () => {
+        const builder = new RecapBuilder();
+        builder.translatorService = {
+            init: () => {},
+            setLocale: () => {},
+            getTranslation: (locale, key) => "Hello Julien."
+        };
+
+        const recap = await builder.sayHello("Julien").build();
+        expect(recap).toBe("Hello Julien.");
+    })
+
     it("should set the name", async () => {
         let recap = await new RecapBuilder().sayHello("World").build();
         expect(recap).toBe("Hello World.");
