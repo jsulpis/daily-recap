@@ -11,5 +11,8 @@ coverage
 # credentials and tokens
 static
 
+# generated mp3 file
+output
+
 # build
 dist
