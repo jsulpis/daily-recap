@@ -15,6 +15,8 @@ export default class DateTimeFormatter {
                 return this.formatTime12hFormat(date);
             case "fr" || "fr-FR":
                 return this.formatTime24hFormat(date);
+            default:
+                return this.formatTime12hFormat(date);
         }
     }
 
