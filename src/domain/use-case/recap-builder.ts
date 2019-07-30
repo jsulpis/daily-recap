@@ -1,11 +1,12 @@
-import DateTimeFormatter from "./date-time-formatter";
-import WeatherService from "../interfaces/weather.service";
+import I18nService from "../../infrastructure/i18n.service";
 import CalendarService from "../interfaces/calendar.service";
 import TodoService from "../interfaces/todo.service";
-import I18nService from "../../infrastructure/i18n.service";
 import TranslatorService from "../interfaces/translator.service";
+import WeatherService from "../interfaces/weather.service";
+import DateTimeFormatter from "./date-time-formatter";
 
 export default class RecapBuilder {
+    public translatorService: TranslatorService;
     private recap = "";
     private locale = "en";
 
@@ -13,7 +14,6 @@ export default class RecapBuilder {
     private weatherService: WeatherService;
     private calendarProviders: CalendarService[] = [];
     private todoProviders: TodoService[] = [];
-    translatorService: TranslatorService;
 
     private cityName: string;
     private countryCode: string;
@@ -24,24 +24,24 @@ export default class RecapBuilder {
         this.translatorService.init(this.locale, "./locales");
     }
 
-    setLocale(locale: string) {
+    public setLocale(locale: string) {
         this.locale = locale;
         this.translatorService.setLocale(this.locale);
         return this;
     }
 
-    sayHello(name: string): RecapBuilder {
+    public sayHello(name: string): RecapBuilder {
         this.addTranslationToRecap("hello", { name });
         return this;
     }
 
-    addTranslationToRecap(key: string, payload?: Object): void {
+    public addTranslationToRecap(key: string, payload?: Object): void {
         this.recap = this.recap.concat(
             " " + this.translatorService.getTranslation(key, payload)
         );
     }
 
-    sayCurrentDate(): RecapBuilder {
+    public sayCurrentDate(): RecapBuilder {
         const date = this.dateTimeFormatter.formatDate(
             new Date(Date.now()),
             this.locale
@@ -54,7 +54,7 @@ export default class RecapBuilder {
         return this;
     }
 
-    sayCurrentWeather(
+    public sayCurrentWeather(
         cityName: string,
         countryCode: string,
         weatherAgent: WeatherService
@@ -65,17 +65,17 @@ export default class RecapBuilder {
         return this;
     }
 
-    listEventsOfTheDay(calendarAgent: CalendarService): RecapBuilder {
+    public listEventsOfTheDay(calendarAgent: CalendarService): RecapBuilder {
         this.calendarProviders.push(calendarAgent);
         return this;
     }
 
-    listTodos(todoProvider: TodoService) {
+    public listTodos(todoProvider: TodoService) {
         this.todoProviders.push(todoProvider);
         return this;
     }
 
-    async build(): Promise<string> {
+    public async build(): Promise<string> {
         if (!!this.weatherService) {
             await this.buildWeather();
         }
@@ -95,9 +95,7 @@ export default class RecapBuilder {
             this.countryCode
         );
         this.recap = this.recap.concat(
-            ` The weather in ${this.cityName} is currently ${
-                currentWeather.description
-            } with a temperature of ${currentWeather.temperature} degrees.`
+            ` The weather in ${this.cityName} is currently ${currentWeather.description} with a temperature of ${currentWeather.temperature} degrees.`
         );
     }
 

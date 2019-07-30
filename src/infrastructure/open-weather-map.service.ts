@@ -1,11 +1,12 @@
-import WeatherService from "../domain/interfaces/weather.service";
 import Axios from "axios";
+import WeatherService from "../domain/interfaces/weather.service";
 import WeatherData from "../domain/model/weather-data";
 
 export default class OpenWeatherMapService implements WeatherService {
-    static readonly API_URL = "https://api.openweathermap.org/data/2.5/weather";
+    public static readonly API_URL =
+        "https://api.openweathermap.org/data/2.5/weather";
 
-    getCurrentWeather(
+    public getCurrentWeather(
         cityName: string,
         countryCode: string
     ): Promise<WeatherData> {
@@ -15,11 +16,7 @@ export default class OpenWeatherMapService implements WeatherService {
     }
 
     private constructQueryUrl(cityName: string, countryCode: string): string {
-        return `${
-            OpenWeatherMapService.API_URL
-        }?q=${cityName},${countryCode}&appId=${
-            process.env.OPEN_WEATHER_API_KEY
-        }`;
+        return `${OpenWeatherMapService.API_URL}?q=${cityName},${countryCode}&appId=${process.env.OPEN_WEATHER_API_KEY}`;
     }
 
     private createWeatherModel(data): WeatherData {

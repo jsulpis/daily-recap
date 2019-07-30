@@ -1,6 +1,6 @@
-import CalendarEvent from "../domain/model/calendar-event";
-import CalendarService from "../domain/interfaces/calendar.service";
 import { calendar_v3 } from "googleapis";
+import CalendarService from "../domain/interfaces/calendar.service";
+import CalendarEvent from "../domain/model/calendar-event";
 
 const moment = require("moment");
 const fs = require("mz/fs");
@@ -8,6 +8,9 @@ const readline = require("readline");
 const { google } = require("googleapis");
 
 export default class GoogleCalendarService implements CalendarService {
+    get tokenPath(): string {
+        return `static/${this.calendarName}-token.json`.replace(/\/-/, "/");
+    }
     // If modifying these scopes, delete token.json.
     private SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"];
     // The file token.json stores the user's access and refresh tokens, and is
@@ -17,15 +20,11 @@ export default class GoogleCalendarService implements CalendarService {
 
     constructor(private calendarName: string) {}
 
-    getCalendarName() {
+    public getCalendarName() {
         return this.calendarName;
     }
 
-    get tokenPath(): string {
-        return `static/${this.calendarName}-token.json`.replace(/\/-/, "/");
-    }
-
-    getEventsOfTheDay(): Promise<CalendarEvent[]> {
+    public getEventsOfTheDay(): Promise<CalendarEvent[]> {
         return fs
             .readFile(this.CREDENTIALS_PATH)
             .catch((err: string) =>
@@ -42,6 +41,84 @@ export default class GoogleCalendarService implements CalendarService {
             });
     }
 
+    public createAuthClient(credentials) {
+        const {
+            client_secret,
+            client_id,
+            redirect_uris
+        } = credentials.installed;
+        return new google.auth.OAuth2(
+            client_id,
+            client_secret,
+            redirect_uris[0]
+        );
+    }
+
+    public askCode(): Promise<string> {
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+        return new Promise(resolve => {
+            rl.question("Enter the code from that page here: ", code => {
+                rl.close();
+                resolve(code);
+            });
+        });
+    }
+
+    public fetchToken(oAuth2Client, code): Promise<any> {
+        return new Promise((resolve, reject) => {
+            oAuth2Client.getToken(code, (e, token) => {
+                if (e) {
+                    return reject(new Error(e));
+                }
+                // Store the token to disk for later program executions
+                fs.writeFile(this.tokenPath, JSON.stringify(token), err => {
+                    if (err) {
+                        return reject(new Error(err));
+                    }
+                    console.log("Token stored to", this.tokenPath);
+                });
+                resolve(token);
+            });
+        });
+    }
+
+    public getRawEvents(auth): Promise<calendar_v3.Schema$Event[]> {
+        const calendar = new calendar_v3.Calendar({ auth });
+        return new Promise((resolve, reject) =>
+            calendar.events.list(
+                {
+                    calendarId: "primary",
+                    singleEvents: true,
+                    timeMax: this.endOfDay(new Date()).toISOString(),
+                    timeMin: this.startOfDay(new Date()).toISOString()
+                },
+                (err, res) => {
+                    if (err) {
+                        reject(new Error("The API returned an error: " + err));
+                    }
+                    resolve(res.data.items);
+                }
+            )
+        );
+    }
+
+    public startOfDay(date: Date): Date {
+        return moment
+            .utc(date)
+            .startOf("day")
+            .toDate();
+    }
+
+    public endOfDay(date: Date): Date {
+        return moment
+            .utc(date)
+            .endOf("day")
+            .toDate();
+    }
+
     /**
      * Create an OAuth2 client with the given credentials, and then execute the
      * given callback function.
@@ -50,7 +127,7 @@ export default class GoogleCalendarService implements CalendarService {
      */
     private async authorize(
         credentials,
-        callback: Function
+        callback: (authClient) => any
     ): Promise<CalendarEvent[]> {
         const oAuth2Client = this.createAuthClient(credentials);
 
@@ -63,19 +140,6 @@ export default class GoogleCalendarService implements CalendarService {
 
         oAuth2Client.setCredentials(JSON.parse(token));
         return callback(oAuth2Client);
-    }
-
-    createAuthClient(credentials) {
-        const {
-            client_secret,
-            client_id,
-            redirect_uris
-        } = credentials.installed;
-        return new google.auth.OAuth2(
-            client_id,
-            client_secret,
-            redirect_uris[0]
-        );
     }
 
     /**
@@ -91,33 +155,6 @@ export default class GoogleCalendarService implements CalendarService {
 
         const code = await this.askCode();
         return this.fetchToken(oAuth2Client, code);
-    }
-
-    askCode(): Promise<string> {
-        const rl = readline.createInterface({
-            input: process.stdin,
-            output: process.stdout
-        });
-        return new Promise(resolve => {
-            rl.question("Enter the code from that page here: ", code => {
-                rl.close();
-                resolve(code);
-            });
-        });
-    }
-
-    fetchToken(oAuth2Client, code): Promise<any> {
-        return new Promise((resolve, reject) => {
-            oAuth2Client.getToken(code, (e, token) => {
-                if (e) return reject(new Error(e));
-                // Store the token to disk for later program executions
-                fs.writeFile(this.tokenPath, JSON.stringify(token), err => {
-                    if (err) return reject(new Error(err));
-                    console.log("Token stored to", this.tokenPath);
-                });
-                resolve(token);
-            });
-        });
     }
 
     /**
@@ -137,38 +174,5 @@ export default class GoogleCalendarService implements CalendarService {
                 );
             })
         );
-    }
-
-    getRawEvents(auth): Promise<calendar_v3.Schema$Event[]> {
-        const calendar = new calendar_v3.Calendar({ auth });
-        return new Promise((resolve, reject) =>
-            calendar.events.list(
-                {
-                    calendarId: "primary",
-                    timeMin: this.startOfDay(new Date()).toISOString(),
-                    timeMax: this.endOfDay(new Date()).toISOString(),
-                    singleEvents: true
-                },
-                (err, res) => {
-                    if (err)
-                        reject(new Error("The API returned an error: " + err));
-                    resolve(res.data.items);
-                }
-            )
-        );
-    }
-
-    startOfDay(date: Date): Date {
-        return moment
-            .utc(date)
-            .startOf("day")
-            .toDate();
-    }
-
-    endOfDay(date: Date): Date {
-        return moment
-            .utc(date)
-            .endOf("day")
-            .toDate();
     }
 }

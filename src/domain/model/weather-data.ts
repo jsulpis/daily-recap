@@ -1,9 +1,9 @@
 export default class WeatherData {
-  description: string;
-  temperature: number;
+    public description: string;
+    public temperature: number;
 
-  constructor(description: string, temperature: number) {
-    this.description = description;
-    this.temperature = temperature;
-  }
+    constructor(description: string, temperature: number) {
+        this.description = description;
+        this.temperature = temperature;
+    }
 }
