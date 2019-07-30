@@ -7,6 +7,7 @@ import TranslatorService from "../interfaces/translator.service";
 
 export default class RecapBuilder {
     private recap = "";
+    private locale = "en";
 
     private dateTimeFormatter: DateTimeFormatter;
     private weatherService: WeatherService;
@@ -20,11 +21,12 @@ export default class RecapBuilder {
     constructor() {
         this.dateTimeFormatter = new DateTimeFormatter();
         this.translatorService = new I18nService();
-        this.translatorService.init("en", "./locales");
+        this.translatorService.init(this.locale, "./locales");
     }
 
     setLocale(locale: string) {
-        this.translatorService.setLocale(locale);
+        this.locale = locale;
+        this.translatorService.setLocale(this.locale);
         return this;
     }
 
@@ -35,14 +37,20 @@ export default class RecapBuilder {
 
     addTranslationToRecap(key: string, payload?: Object): void {
         this.recap = this.recap.concat(
-            this.translatorService.getTranslation(key, payload)
+            " " + this.translatorService.getTranslation(key, payload)
         );
     }
 
     sayCurrentDate(): RecapBuilder {
-        const date = this.dateTimeFormatter.formatDate(new Date(Date.now()));
-        const time = this.dateTimeFormatter.formatTime(new Date(Date.now()));
-        this.recap = this.recap.concat(` It's ${time}, ${date}.`);
+        const date = this.dateTimeFormatter.formatDate(
+            new Date(Date.now()),
+            this.locale
+        );
+        const time = this.dateTimeFormatter.formatTime(
+            new Date(Date.now()),
+            this.locale
+        );
+        this.addTranslationToRecap("dateTime", { date, time });
         return this;
     }
 

@@ -1,3 +1,4 @@
 {
-  "hello": "Bonjour {{name}}."
+	"hello": "Bonjour {{name}}.",
+	"dateTime": "Il est {{time}}, nous sommes le {{date}}."
 }
