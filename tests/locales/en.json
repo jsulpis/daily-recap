@@ -9,5 +9,11 @@
         "oneEvent": "You have 1 event on your {{calendarName}} agenda today: ",
         "multipleEvents": "You have {{numberOfEvents}} events on your {{calendarName}} agenda today: ",
         "eventTime": " at {{time}}"
-    }
+    },
+    "todo": {
+        "empty": "You don't have any task on your {{listName}} list.",
+        "oneTask": " You have {{numberOfTasks}} task on your {{listName}} list: ",
+        "multipleTasks": " You have {{numberOfTasks}} tasks on your {{listName}} list: "
+    },
+    "and": " and "
 }

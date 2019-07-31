@@ -7,13 +7,13 @@ export default class GoogleTtsService implements SpeakerService {
     public OUTPUT_FOLDER = "output";
     public OUTPUT_FILE_NAME = "recap.mp3";
 
-    public async say(text: string) {
+    public async say(text: string, locale: string) {
         const client = this.getClient();
         const request = {
             audioConfig: { audioEncoding: "MP3" },
             input: { text },
             // Select the language and SSML Voice Gender (optional)
-            voice: { languageCode: "en-US", ssmlGender: "NEUTRAL" }
+            voice: { languageCode: locale, ssmlGender: "NEUTRAL" }
         };
 
         // Performs the Text-to-Speech request

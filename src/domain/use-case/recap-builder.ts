@@ -137,34 +137,36 @@ export default class RecapBuilder {
                 );
                 this.addTranslationToRecap("calendar.eventTime", { time });
             }
-            this.recap = this.recap.concat(" and ");
+            this.addTranslationToRecap("and");
         });
-        this.recap = this.recap.replace(/ and $/, ".");
+        // remove the final "and" and put a full stop.
+        this.recap = this.recap.replace(/ [a-z]* $/, ".");
     }
 
     private async buildTodos(todoProvider: TodoService): Promise<void> {
         const todos = await todoProvider.getTodos();
 
         if (todos.length === 0) {
-            this.recap = this.recap.concat(
-                ` You don't have any task on your ${todoProvider.getListName()} list.`.replace(
-                    /  /,
-                    " "
-                )
-            );
+            this.addTranslationToRecap("todo.empty", {
+                listName: todoProvider.getListName()
+            });
             return;
         }
 
         const multipleTasks = todos.length > 1;
-        this.recap = this.recap.concat(
-            ` You have ${todos.length} task${
-                multipleTasks ? "s" : ""
-            } on your ${todoProvider.getListName()} list: `.replace(/  /, " ")
-        );
+        const todoTranslationKey = multipleTasks
+            ? "todo.multipleTasks"
+            : "todo.oneTask";
+        this.addTranslationToRecap(todoTranslationKey, {
+            listName: todoProvider.getListName(),
+            numberOfTasks: todos.length
+        });
+
         todos.forEach(task => {
             this.recap = this.recap.concat(task.title);
-            this.recap = this.recap.concat(" and ");
+            this.addTranslationToRecap("and");
         });
-        this.recap = this.recap.replace(/ and $/, ".");
+        // remove the final "and" and put a full stop.
+        this.recap = this.recap.replace(/ [a-z]* $/, ".");
     }
 }

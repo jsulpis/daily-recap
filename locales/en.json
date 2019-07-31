@@ -4,8 +4,14 @@
   "weather": "The weather in {{city}} is currently {{description}} with a temperature of {{temperature}} degrees.",
   "calendar": {
     "empty": "You don't have any event on your{{calendarName}} agenda today.",
-    "oneEvent": "You have 1 event on your{{calendarName}} agenda today: ",
+    "oneEvent": "You have one event on your{{calendarName}} agenda today: ",
     "multipleEvents": "You have {{numberOfEvents}} events on your{{calendarName}} agenda today: ",
     "eventTime": " at {{time}}"
-  }
+  },
+  "todo": {
+    "empty": "You don't have any task on your {{listName}} list.",
+    "oneTask": " You have one task on your {{listName}} list: ",
+    "multipleTasks": " You have {{numberOfTasks}} tasks on your {{listName}} list: "
+  },
+  "and": " and "
 }

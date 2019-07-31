@@ -1,11 +1,17 @@
 {
-  "hello": "Bonjour {{name}}.",
-  "dateTime": "Il est {{time}}, nous sommes le {{date}}.",
-  "weather": "Le temps à {{city}} est actuellement {{description}} avec une température de {{temperature}} degrés.",
-  "calendar": {
-    "empty": "Vous n'avez aucun événement sur votre agenda {{calendarName}} aujourd'hui.",
-    "oneEvent": "Vous avez 1 événement sur votre agenda {{calendarName}} aujourd'hui: ",
-    "multipleEvents": "Vous avez {{numberOfEvents}} événements sur votre agenda {{calendarName}} aujourd'hui: ",
-    "eventTime": " à {{time}}"
-  }
+	"hello": "Bonjour {{name}}.",
+	"dateTime": "Il est {{time}}, nous sommes le {{date}}.",
+	"weather": "Le temps à {{city}} est actuellement {{description}} avec une température de {{temperature}} degrés.",
+	"calendar": {
+		"empty": "Vous n'avez aucun événement sur votre agenda {{calendarName}} aujourd'hui.",
+		"oneEvent": "Vous avez un événement sur votre agenda {{calendarName}} aujourd'hui: ",
+		"multipleEvents": "Vous avez {{numberOfEvents}} événements sur votre agenda {{calendarName}} aujourd'hui: ",
+		"eventTime": " à {{time}}"
+	},
+	"todo": {
+		"empty": "Vous n'avez aucune tâche sur votre liste {{listName}}.",
+		"oneTask": " Vous avez une tâche sur votre liste {{listName}}: ",
+		"multipleTasks": " Vous avez {{numberOfTasks}} tâches sur votre liste {{listName}}: "
+	  },
+	  "and": " et "
 }

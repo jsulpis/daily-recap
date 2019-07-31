@@ -4,18 +4,24 @@ import GoogleCalendarService from "./src/infrastructure/google-calendar.service"
 import TrelloService from "./src/infrastructure/trello.service";
 import SpeakerService from "./src/domain/interfaces/speaker.service";
 import GoogleTtsService from "./src/infrastructure/google-tts.service";
+import SayService from "./src/infrastructure/say.service";
 
 require("dotenv").config();
 
+// const locale = "fr";
+const locale = "en";
+
 const speaker: SpeakerService = new GoogleTtsService();
+// const speaker: SpeakerService = new SayService();
 
 getRecap().then(recap => {
   console.log(recap);
-  speaker.say(recap);
+  speaker.say(recap, locale);
 });
 
 async function getRecap() {
   return await new RecapBuilder()
+    .setLocale(locale)
     .sayHello("Julien")
     .sayCurrentDate()
     .sayCurrentWeather("Lyon", "fr", new OpenWeatherMapService())
