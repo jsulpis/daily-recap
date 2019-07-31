@@ -20,15 +20,21 @@ describe("OpenWeatherMapService", () => {
 
         const currentWeather = await new OpenWeatherMapService().getCurrentWeather(
             "Lyon",
+            "fr",
             "fr"
         );
 
-        const expectedQueryUrl = `${
-            OpenWeatherMapService.API_URL
-        }?q=Lyon,fr&appId=hello`;
-
         expect(currentWeather.description).toBe("cloudy");
         expect(currentWeather.temperature).toBe(17);
-        expect(mockedAxiosCall).toHaveBeenCalledWith(expectedQueryUrl);
+        expect(mockedAxiosCall).toHaveBeenCalledWith(
+            OpenWeatherMapService.API_URL,
+            {
+                params: {
+                    appId: process.env.OPEN_WEATHER_API_KEY,
+                    q: "Lyon,fr",
+                    lang: "fr"
+                }
+            }
+        );
     });
 });

@@ -15,7 +15,7 @@ export default class RecapBuilder {
     private calendarProviders: CalendarService[] = [];
     private todoProviders: TodoService[] = [];
 
-    private cityName: string;
+    private city: string;
     private countryCode: string;
 
     constructor() {
@@ -35,10 +35,10 @@ export default class RecapBuilder {
         return this;
     }
 
-    public addTranslationToRecap(key: string, payload?: Object): void {
-        this.recap = this.recap.concat(
-            " " + this.translatorService.getTranslation(key, payload)
-        );
+    public addTranslationToRecap(key: string, payload?: object): void {
+        let newSentence = this.translatorService.getTranslation(key, payload);
+        newSentence = (" " + newSentence).replace(/  /, " "); // add a space at the beginning and delete double space if any
+        this.recap = this.recap.concat(newSentence);
     }
 
     public sayCurrentDate(): RecapBuilder {
@@ -57,16 +57,16 @@ export default class RecapBuilder {
     public sayCurrentWeather(
         cityName: string,
         countryCode: string,
-        weatherAgent: WeatherService
+        weatherService: WeatherService
     ): RecapBuilder {
-        this.weatherService = weatherAgent;
-        this.cityName = cityName;
+        this.weatherService = weatherService;
+        this.city = cityName;
         this.countryCode = countryCode;
         return this;
     }
 
-    public listEventsOfTheDay(calendarAgent: CalendarService): RecapBuilder {
-        this.calendarProviders.push(calendarAgent);
+    public listEventsOfTheDay(calendarService: CalendarService): RecapBuilder {
+        this.calendarProviders.push(calendarService);
         return this;
     }
 
@@ -91,12 +91,15 @@ export default class RecapBuilder {
 
     private async buildWeather(): Promise<void> {
         const currentWeather = await this.weatherService.getCurrentWeather(
-            this.cityName,
-            this.countryCode
+            this.city,
+            this.countryCode,
+            this.locale
         );
-        this.recap = this.recap.concat(
-            ` The weather in ${this.cityName} is currently ${currentWeather.description} with a temperature of ${currentWeather.temperature} degrees.`
-        );
+        this.addTranslationToRecap("weather", {
+            city: this.city,
+            description: currentWeather.description,
+            temperature: currentWeather.temperature
+        });
     }
 
     private async buildEvents(calendarAgent: CalendarService): Promise<void> {
@@ -107,30 +110,32 @@ export default class RecapBuilder {
             return console.error(err);
         }
 
+        const calendarName = calendarAgent.getCalendarName()
+            ? " " + calendarAgent.getCalendarName()
+            : "";
+
         if (events.length === 0) {
-            this.recap = this.recap.concat(
-                ` You don't have any event on your ${calendarAgent.getCalendarName()} agenda today.`.replace(
-                    /  /,
-                    " "
-                )
-            );
+            this.addTranslationToRecap("calendar.empty", { calendarName });
             return;
         }
 
         const multipleEvents = events.length > 1;
-        this.recap = this.recap.concat(
-            ` You have ${events.length} event${
-                multipleEvents ? "s" : ""
-            } on your ${calendarAgent.getCalendarName()} agenda today: `.replace(
-                /  /,
-                " "
-            )
-        );
+        const calendarTranslationKey = multipleEvents
+            ? "calendar.multipleEvents"
+            : "calendar.oneEvent";
+        this.addTranslationToRecap(calendarTranslationKey, {
+            calendarName,
+            numberOfEvents: events.length
+        });
+
         events.forEach(event => {
             this.recap = this.recap.concat(event.title);
             if (!event.allDay) {
-                const time = this.dateTimeFormatter.formatTime(event.time);
-                this.recap = this.recap.concat(` at ${time}`);
+                const time = this.dateTimeFormatter.formatTime(
+                    event.time,
+                    this.locale
+                );
+                this.addTranslationToRecap("calendar.eventTime", { time });
             }
             this.recap = this.recap.concat(" and ");
         });

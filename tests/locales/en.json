@@ -1,0 +1,13 @@
+{
+    "key": "value",
+    "complexSentence": "My sentence with parameters: {{arg1}} and {{arg2}}.",
+    "hello": "Hello {{name}}.",
+    "dateTime": "It's {{time}}, {{date}}.",
+    "weather": "The weather in {{city}} is currently {{description}} with a temperature of {{temperature}} degrees.",
+    "calendar": {
+        "empty": "You don't have any event on your {{calendarName}} agenda today.",
+        "oneEvent": "You have 1 event on your {{calendarName}} agenda today: ",
+        "multipleEvents": "You have {{numberOfEvents}} events on your {{calendarName}} agenda today: ",
+        "eventTime": " at {{time}}"
+    }
+}

@@ -3,7 +3,7 @@ const i18n = require("i18n");
 
 export default class I18nService implements TranslatorService {
     public init(locale: string, directory: string) {
-        i18n.configure({ directory });
+        i18n.configure({ directory, objectNotation: true });
         i18n.setLocale(locale);
     }
 
