@@ -24,6 +24,10 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin(),
-    new CopyPlugin([{ from: "static", to: "static" }, ".env"])
+    new CopyPlugin([
+      { from: "static", to: "static" },
+      { from: "locales", to: "locales" },
+      ".env"
+    ])
   ]
 };
