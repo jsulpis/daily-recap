@@ -8,15 +8,16 @@ export default class OpenWeatherMapService implements WeatherService {
 
     public getCurrentWeather(
         cityName: string,
-        countryCode: string
+        countryCode: string,
+        locale: string
     ): Promise<WeatherData> {
-        return Axios.get(this.constructQueryUrl(cityName, countryCode)).then(
-            response => this.createWeatherModel(response.data)
-        );
-    }
-
-    private constructQueryUrl(cityName: string, countryCode: string): string {
-        return `${OpenWeatherMapService.API_URL}?q=${cityName},${countryCode}&appId=${process.env.OPEN_WEATHER_API_KEY}`;
+        return Axios.get(OpenWeatherMapService.API_URL, {
+            params: {
+                appId: process.env.OPEN_WEATHER_API_KEY,
+                q: `${cityName},${countryCode}`,
+                lang: locale
+            }
+        }).then(response => this.createWeatherModel(response.data));
     }
 
     private createWeatherModel(data): WeatherData {

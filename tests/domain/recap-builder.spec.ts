@@ -4,30 +4,28 @@ import CalendarService from "../../src/domain/interfaces/calendar.service";
 import TodoService from "../../src/domain/interfaces/todo.service";
 
 describe("RecapBuilder", () => {
-    it("should add a translated text to the recap", async () => {
-        const builder = new RecapBuilder();
-        builder.translatorService = {
-            init: () => {},
-            setLocale: () => {},
-            getTranslation: (locale, key) => "Hello Julien."
-        };
+    let builder: RecapBuilder;
 
+    beforeEach(() => {
+        builder = new RecapBuilder();
+        builder.translatorService.init("en", "tests/locales");
+    });
+
+    it("should add a translated text to the recap", async () => {
         const recap = await builder.sayHello("Julien").build();
         expect(recap).toBe("Hello Julien.");
-    })
+    });
 
     it("should set the name", async () => {
-        let recap = await new RecapBuilder().sayHello("World").build();
+        const recap = await builder.sayHello("World").build();
         expect(recap).toBe("Hello World.");
-        recap = await new RecapBuilder().sayHello("Julien").build();
-        expect(recap).toBe("Hello Julien.");
     });
 
     it("should set the date", async () => {
         const DATE_TEST = new Date("2019-06-02T14:30");
         Date.now = jest.fn(() => DATE_TEST.getTime());
 
-        const recap = await new RecapBuilder().sayCurrentDate().build();
+        const recap = await builder.sayCurrentDate().build();
         expect(recap).toBe("It's 2:30 pm, Sunday, June 2.");
     });
 
@@ -37,7 +35,7 @@ describe("RecapBuilder", () => {
                 Promise.resolve({ description: "cloudy", temperature: 20 })
         };
 
-        const recap = await new RecapBuilder()
+        const recap = await builder
             .sayCurrentWeather("Lyon", "fr", mockWeatherService)
             .build();
         expect(recap).toBe(
@@ -51,41 +49,11 @@ describe("RecapBuilder", () => {
             getCalendarName: () => "personnal"
         };
 
-        const recap = await new RecapBuilder()
+        const recap = await builder
             .listEventsOfTheDay(mockCalendarService)
             .build();
         expect(recap).toBe(
             "You don't have any event on your personnal agenda today."
-        );
-    });
-
-    it("should print a consistant sentence if no agenda name is provided", async () => {
-        let mockCalendarService: CalendarService = {
-            getEventsOfTheDay: () => Promise.resolve([]),
-            getCalendarName: () => ""
-        };
-
-        let recap = await new RecapBuilder()
-            .listEventsOfTheDay(mockCalendarService)
-            .build();
-        expect(recap).toBe("You don't have any event on your agenda today.");
-
-        mockCalendarService = {
-            getCalendarName: () => "",
-            getEventsOfTheDay: () =>
-                Promise.resolve([
-                    {
-                        title: "Lunch with Bob",
-                        time: new Date("2019-06-16T12:30")
-                    }
-                ])
-        };
-
-        recap = await new RecapBuilder()
-            .listEventsOfTheDay(mockCalendarService)
-            .build();
-        expect(recap).toBe(
-            "You have 1 event on your agenda today: Lunch with Bob at 12:30 pm."
         );
     });
 
@@ -101,7 +69,7 @@ describe("RecapBuilder", () => {
                 ])
         };
 
-        const recap = await new RecapBuilder()
+        const recap = await builder
             .listEventsOfTheDay(mockCalendarService)
             .build();
         expect(recap).toBe(
@@ -125,7 +93,7 @@ describe("RecapBuilder", () => {
                 ])
         };
 
-        const recap = await new RecapBuilder()
+        const recap = await builder
             .listEventsOfTheDay(mockCalendarService)
             .build();
         expect(recap).toBe(
@@ -146,7 +114,7 @@ describe("RecapBuilder", () => {
                 ])
         };
 
-        const recap = await new RecapBuilder()
+        const recap = await builder
             .listEventsOfTheDay(mockCalendarService)
             .build();
         expect(recap).toBe(
@@ -160,7 +128,7 @@ describe("RecapBuilder", () => {
             getCalendarName: () => "personnal"
         };
 
-        const recap = await new RecapBuilder()
+        const recap = await builder
             .listEventsOfTheDay(mockCalendarService)
             .build();
         expect(recap).toBe(
@@ -177,7 +145,7 @@ describe("RecapBuilder", () => {
             getCalendarName: () => ""
         };
 
-        const recap = await new RecapBuilder()
+        const recap = await builder
             .listEventsOfTheDay(mockCalendarService)
             .build();
 
@@ -193,9 +161,7 @@ describe("RecapBuilder", () => {
             getListName: () => "Weekly"
         };
 
-        const recap = await new RecapBuilder()
-            .listTodos(mockTodoService)
-            .build();
+        const recap = await builder.listTodos(mockTodoService).build();
 
         expect(recap).toBe(
             `You have 1 task on your Weekly list: ${MOCK_TODO.title}.`
@@ -210,14 +176,10 @@ describe("RecapBuilder", () => {
             getListName: () => "Weekly"
         };
 
-        const recap = await new RecapBuilder()
-            .listTodos(mockTodoService)
-            .build();
+        const recap = await builder.listTodos(mockTodoService).build();
 
         expect(recap).toBe(
-            `You have 2 tasks on your Weekly list: ${MOCK_TODO_1.title} and ${
-                MOCK_TODO_2.title
-            }.`
+            `You have 2 tasks on your Weekly list: ${MOCK_TODO_1.title} and ${MOCK_TODO_2.title}.`
         );
     });
 
@@ -227,9 +189,7 @@ describe("RecapBuilder", () => {
             getListName: () => "Weekly"
         };
 
-        const recap = await new RecapBuilder()
-            .listTodos(mockTodoService)
-            .build();
+        const recap = await builder.listTodos(mockTodoService).build();
 
         expect(recap).toBe("You don't have any task on your Weekly list.");
     });

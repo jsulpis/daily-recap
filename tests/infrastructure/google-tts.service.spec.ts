@@ -15,17 +15,19 @@ describe("GoogleTtsService", () => {
             .fn(() => ({ synthesizeSpeech: mockSpeechSynthese }))
             .bind(service);
 
-        const mockFsWrite = jest.spyOn(fs, "writeFileSync").mockImplementation();
+        const mockFsWrite = jest
+            .spyOn(fs, "writeFileSync")
+            .mockImplementation();
         const mockFsMkdir = jest.spyOn(fs, "mkdirSync").mockImplementation();
 
         // When
         const TEXT = "Hello";
-        await service.say(TEXT);
+        await service.say(TEXT, "en");
 
         // Then
         const EXPECTED_REQUEST = {
             input: { text: TEXT },
-            voice: { languageCode: "en-US", ssmlGender: "NEUTRAL" },
+            voice: { languageCode: "en", ssmlGender: "NEUTRAL" },
             audioConfig: { audioEncoding: "MP3" }
         };
         expect(mockSpeechSynthese).toHaveBeenCalledTimes(1);

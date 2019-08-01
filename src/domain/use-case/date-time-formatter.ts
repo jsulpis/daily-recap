@@ -2,7 +2,7 @@ const moment = require("moment");
 
 export default class DateTimeFormatter {
     public formatDate(date: Date, locale?: string): string {
-        moment.locale(locale || "en-US");
+        moment.locale(locale || "en");
         const dateWithTime = moment(date).format("LLLL");
         // the format of dateWithTime is "dddd, D MMMM, YYYY HH:mm"
         // I remove the year and hours using a regex:
@@ -11,9 +11,9 @@ export default class DateTimeFormatter {
 
     public formatTime(date: Date, locale?: string): string {
         switch (locale) {
-            case "en" || "en-US" || "en-GB":
+            case "en":
                 return this.formatTime12hFormat(date);
-            case "fr" || "fr-FR":
+            case "fr":
                 return this.formatTime24hFormat(date);
             default:
                 return this.formatTime12hFormat(date);
