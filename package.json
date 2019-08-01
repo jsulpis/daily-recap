@@ -1,18 +1,24 @@
 {
-  "name": "voice-assistant",
+  "name": "daily-recap",
   "version": "1.0.0",
-  "description": "A program that gives information about the day using a text-to-speech API.",
+  "description": "A program that uses APIs to gather information about your day and text-to-speech to say it.",
   "author": "Julien SULPIS",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "keywords": [
     "text-to-speech",
-    "assistant",
-    "voice"
+    "agenda",
+    "weather",
+    "todo list"
   ],
-  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jsulpis/daily-recap"
+  },
+  "main": "index.ts",
   "scripts": {
     "start": "ts-node index.ts",
     "build": "webpack",
+    "compile": "tsc --build",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
