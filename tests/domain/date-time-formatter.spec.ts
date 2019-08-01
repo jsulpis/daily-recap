@@ -29,5 +29,6 @@ describe("DateTimeFormatter", () => {
     it("should select the time format according to the locale", () => {
         expect(dateTimeFormatter.formatTime(TEST_DATE, "en")).toBe("2:30 pm");
         expect(dateTimeFormatter.formatTime(TEST_DATE, "fr")).toBe("14:30");
+        expect(dateTimeFormatter.formatTime(TEST_DATE, "default")).toBe("2:30 pm");
     });
 });

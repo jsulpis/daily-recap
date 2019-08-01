@@ -7,8 +7,8 @@ import DateTimeFormatter from "./date-time-formatter";
 
 export default class RecapBuilder {
     public translatorService: TranslatorService;
+    public locale = "en";
     private recap = "";
-    private locale = "en";
 
     private dateTimeFormatter: DateTimeFormatter;
     private weatherService: WeatherService;

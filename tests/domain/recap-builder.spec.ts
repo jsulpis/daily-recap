@@ -16,6 +16,18 @@ describe("RecapBuilder", () => {
         expect(recap).toBe("Hello Julien.");
     });
 
+    it("should set the locale", () => {
+        const translatorServiceSpy = builder.translatorService.setLocale = jest.fn(() => {});
+        expect(builder.locale).toBe("en");
+        const NEW_LOCALE = "fr";
+
+        builder.setLocale(NEW_LOCALE);
+
+        expect(builder.locale).toBe(NEW_LOCALE);
+        expect(translatorServiceSpy).toHaveBeenCalledWith(NEW_LOCALE);
+
+    });
+
     it("should set the name", async () => {
         const recap = await builder.sayHello("World").build();
         expect(recap).toBe("Hello World.");
