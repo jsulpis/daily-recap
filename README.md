@@ -25,21 +25,16 @@ _Note: Your can add more than one agenda and more than one todo lists._
 #### Demo
 Here is what my Raspberry Pi tells me every morning by running this program in a cron job:
 
-English:
-<audio controls="controls">
-  <source type="audio/mp3" src="https://raw.githubusercontent.com/jsulpis/daily-recap/master/output/demo_en.mp3"></source>
-  <p>Your browser does not support the audio element.</p>
-</audio>
+<a href="https://juliensulpis-partage.s3.eu-west-3.amazonaws.com/demo_en.mp3" target="_blank">English</a> - 
+<a href="https://juliensulpis-partage.s3.eu-west-3.amazonaws.com/demo_fr.mp3" target="_blank">French</a>
 
-French:
-<audio controls="controls">
-  <source type="audio/mp3" src="https://raw.githubusercontent.com/jsulpis/daily-recap/master/output/demo_fr.mp3"></source>
-  <p>Your browser does not support the audio element.</p>
-</audio>
+#### Warning 
+This program does not work well on Windows, partly because of the `play-sound` library that requires additionnal software and config on Windows. However, you can use the `say` text-to-speech service rather than the Google one and this should work fine. See `index.ts`.
+
 
 
 ## Installation
-```
+```bash
 git clone https://github.com/jsulpis/daily-recap.git
 cd daily-recap && npm i
 ```
@@ -88,7 +83,7 @@ So I just compile the typescript files using `npm run compile` and then copy the
 
 #### Setting up a cron job
 On my Raspberry, I have found that in order to play a sound in a cron job, we need to export a variable. So I put this in a `launch.sh` file alongside the other files:
-```node
+```bash
 #!/bin/bash
 export XDG_RUNTIME_DIR="/run/user/1000"
 cd /home/path/to/dist && /usr/local/bin/node index.js
