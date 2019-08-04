@@ -1,6 +1,14 @@
 language: node_js
+
 node_js:
   - "10"
+
+dist: trusty
+
+addons:
+  sonarcloud:
+    organization: "jsulpis-github"
+    token: $SONAR_TOKEN
 
 cache:
   directories:
@@ -13,9 +21,8 @@ jobs:
   include:
     - stage: lint
       script: npm run lint
-    - stage: test
-      script: npm test
-
-stages: 
-  - lint
-  - test
+    # no test because of an issue with jest caching on Travis CI
+    # - stage: test
+    #   script: npm test
+    - stage: sonar
+      script: sonar-scanner
