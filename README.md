@@ -1,14 +1,22 @@
-<div align="center">
+<h1 align="center">Daily recap</h1>
 
-<h1>Daily recap</h1>
+<h3 align="center">Using APIs to gather information about your day and text-to-speech to say it.</h3>
 
-<h3>Using APIs to gather information about your day and text-to-speech to say it.</h3>
-
-<p>
-  <img class="repo-preview" src="https://raw.githubusercontent.com/jsulpis/daily-recap/master/preview.png" alt="Screenshot image"/>
+<p align="center">
+	<a href="https://travis-ci.org/jsulpis/daily-recap">
+		<img alt="Build Status" src="https://travis-ci.org/jsulpis/daily-recap.svg?branch=master" />
+	</a>
+  <a href="https://sonarcloud.io/dashboard?id=daily-recap">
+		<img alt="Quality Gate Status" src="https://sonarcloud.io/api/project_badges/measure?project=daily-recap&metric=alert_status" />
+	</a>
+  <a href="https://sonarcloud.io/dashboard?id=daily-recap">
+		<img alt="Coverage" src="https://sonarcloud.io/api/project_badges/measure?project=daily-recap&metric=coverage" />
+	</a>
 </p>
 
-</div>
+<p align="center">
+  <img class="repo-preview" src="https://raw.githubusercontent.com/jsulpis/daily-recap/master/preview.png" alt="Screenshot image"/>
+</p>
 
 ## Features
 
@@ -88,9 +96,9 @@ On my Raspberry, I have found that in order to play a sound in a cron job, we ne
 export XDG_RUNTIME_DIR="/run/user/1000"
 cd /home/path/to/dist && /usr/local/bin/node index.js
 ```
-Eventually I run this script in a new cron job (using the command `crontab -e`):
+Eventually I run this script in a new cron job that starts every day between monday and friday at 8:30 am. Run the command `crontab -e` to edit your cron jobs and insert the following:
 ```
-30 8 * * * /home/path/to/launch.sh
+30 8 * * 1-5 /home/path/to/launch.sh
 ```
 
 
